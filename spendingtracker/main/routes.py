@@ -1,7 +1,12 @@
+from flask import Blueprint
+
 from spendingtracker import app
 
 
-@app.route('/')
-@app.route('/home')
+main=Blueprint('main', __name__)
+
+
+@main.route('/')
+@main.route('/home')
 def hello_world():
     return 'Hello, World!'
