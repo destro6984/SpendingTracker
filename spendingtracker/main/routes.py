@@ -1,6 +1,5 @@
 from flask import Blueprint
 
-from spendingtracker import app
 
 
 main=Blueprint('main', __name__)
