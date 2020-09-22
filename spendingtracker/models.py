@@ -14,10 +14,10 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
-    bought_products=db.relationship("ProductPurchased",backref="purchased",lazy=True)
+    bought_products=db.relationship("Productpurchased",backref="purchased_by",lazy=True,cascade = "all, delete-orphan" )
 
     def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+        return f"User('{self.username}', '{self.email}', '{self.image_file}','{self.bought_products}')"
 
     def get_reset_token(self, expires_sce=1800):
         s= Serializer(app.config['SECRET_KEY'],expires_sce)
@@ -33,18 +33,21 @@ class User(db.Model, UserMixin):
         return User.query.get(user_id)
 
 
-class ProductPurchased(db.Model):
+class Productpurchased(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    price = db.Column(db.Numeric(10,2))
-    category_id = db.relationship("Category",uselist=False,backref="purchase")
+    price = db.Column(db.Numeric(10,2),nullable=False)
     user_id=db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("category.id"),nullable=False)
     buy_date = db.Column(db.DateTime, nullable=False,
                          default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"User(price: '{self.price}',purchase_cat: '{self.purchase_cat}',purchased_by: '{self.purchased_by}',buy_date :{self.buy_date})"
 
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey("productpurchased.id"))
+    category_id = db.relationship("Productpurchased", uselist=False, backref="purchase_cat")
     category_parent_id = db.Column(db.Integer, db.ForeignKey(id))
     name = db.Column(db.String(50), nullable=False)
     subcategories = db.relationship(
