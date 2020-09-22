@@ -6,7 +6,7 @@
         {{ form.hidden_tag() }}
         <div class="form-group">
             <label for="exampleInputEmail1">UserName</label>
-            <input type="email" class="form-control" id="usenameInput" aria-describedby="Username"
+            <input class="form-control" id="usenameInput" aria-describedby="Username"
                    placeholder="Enter Username">
         </div>
         <div class="form-group">
@@ -24,6 +24,13 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Register</button>
+        {{ form.submit() }}
     </form>
 </div>
+
+{% for field, errors in form.errors.items() %}
+<div class="alert alert-error">
+    {{ form[field].label }}: {{ ', '.join(errors) }}
+</div>
+{% endfor %}
 {%endblock%}

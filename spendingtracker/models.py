@@ -1,7 +1,8 @@
 from flask_login import UserMixin
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from spendingtracker import db, app, login_manager
+from spendingtracker import db, login_manager
+from flask import current_app
 from datetime import datetime
 
 @login_manager.user_loader
@@ -20,12 +21,12 @@ class User(db.Model, UserMixin):
         return f"User('{self.username}', '{self.email}', '{self.image_file}','{self.bought_products}')"
 
     def get_reset_token(self, expires_sce=1800):
-        s= Serializer(app.config['SECRET_KEY'],expires_sce)
+        s= Serializer(current_app.config['SECRET_KEY'],expires_sce)
         return s.dumps({'user_id': self.id}).decode('utf-8')
 
     @staticmethod
     def verify_reset_token(token):
-        s= Serializer(app.config['SECRET_KEY'])
+        s= Serializer(current_app.config['SECRET_KEY'])
         try:
             user_id=s.loads(token)['user_id']
         except:
