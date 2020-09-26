@@ -4,6 +4,13 @@
 <div class="container">
     <form method="post" action="">
         {{ form.hidden_tag() }}
+        <label >new?</label>
+        {{ form.new_category(class="form-control") }}
+        <label >name</label>
+        {{ form.name(class="form-control") }}
+        <label >Main Category</label>
+        {{ form.main_category(class="form-control") }}
+
 
         {{ form.submit(type="submit", class="btn btn-primary",value="Add") }}
     </form>
@@ -13,5 +20,12 @@
 <div class="alert alert-error">
     {{ form[field].label }}: {{ ', '.join(errors) }}
 </div>
+
 {% endfor %}
+<div>
+    {%for cat in present_cat%}
+        {{cat.name}}<br>
+        {{cat.subcategories}}<br>
+    {%endfor%}
+</div>
 {%endblock%}
