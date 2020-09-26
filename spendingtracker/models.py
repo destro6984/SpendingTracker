@@ -48,7 +48,7 @@ class Productpurchased(db.Model):
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    category_id = db.relationship("Productpurchased", uselist=False, backref="purchase_cat")
+    category_id = db.relationship("Productpurchased", backref="purchase_cat")
     category_parent_id = db.Column(db.Integer, db.ForeignKey(id))
     name = db.Column(db.String(50), nullable=False)
     subcategories = db.relationship(

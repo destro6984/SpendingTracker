@@ -4,9 +4,9 @@ from spendingtracker import db
 from spendingtracker.category.forms import CategoryForm
 from spendingtracker.models import Category
 
-category=Blueprint('category', __name__)
+categorybp=Blueprint('category', __name__)
 
-@category.route('/add-category',methods=['GET','POST'])
+@categorybp.route('/add-category',methods=['GET','POST'])
 def add_cat():
     present_maincat=Category.query.filter_by(category_parent_id=1).all()
     form=CategoryForm()

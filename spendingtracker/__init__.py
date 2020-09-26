@@ -1,9 +1,15 @@
 from flask import Flask
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_marshmallow import Marshmallow
+
 from flask_sqlalchemy import SQLAlchemy
 
+
 from spendingtracker.config import Config
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -11,9 +17,13 @@ app.config.from_object(Config)
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 
+ma = Marshmallow()
+
+
 login_manager = LoginManager()
 login_manager.login_view = 'users.login'
 login_manager.login_message_category = 'info'
+admin=Admin(name='spentrc',template_mode='bootstrap3')
 
 
 
@@ -27,10 +37,28 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
 
 
+
+    # from spendingtracker.models import User,Category,Productpurchased
+    # admin.init_app(app)
+    #
+    # admin.add_view(ModelView(User, db.session))
+    # admin.add_view(ModelView(Category, db.session))
+    # admin.add_view(ModelView(Productpurchased, db.session))
+
     from spendingtracker.main.routes import main
     from spendingtracker.users.routes import users
+    from spendingtracker.category.routes import categorybp
+
 
     app.register_blueprint(main)
     app.register_blueprint(users)
+    # app.register_blueprint(categorybp)
+
+    from spendingtracker.api_rest.users_api import usersapi
+    ma.init_app(app)
+
+    app.register_blueprint(usersapi)
+
+
 
     return app
