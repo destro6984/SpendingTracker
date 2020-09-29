@@ -54,11 +54,14 @@ def create_app(config_class=Config):
     app.register_blueprint(users)
     # app.register_blueprint(categorybp)
 
+    #API Marshmallow
     from spendingtracker.api_rest.users_api import usersapi
+    from spendingtracker.api_rest.product_api import productapi
+
     ma.init_app(app)
 
     app.register_blueprint(usersapi)
-
+    app.register_blueprint(productapi)
 
 
     return app
