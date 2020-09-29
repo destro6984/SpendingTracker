@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify
 from flask_restful import Api
+from marshmallow import fields
 
 from spendingtracker import ma
+from spendingtracker.api_rest.product_api import ProductSchema
 from spendingtracker.models import User
 
 usersapi=Blueprint('users_api', __name__,url_prefix='/api')
@@ -9,9 +11,10 @@ api = Api(usersapi)
 
 
 class UserSchema(ma.Schema):
+    bought_products=fields.List(fields.Nested(ProductSchema))
     class Meta:
         model=User
-        fields=('id','username',"email","image_file")
+        fields=('id','username',"email","image_file","bought_products")
 
 
 user_schema=UserSchema()

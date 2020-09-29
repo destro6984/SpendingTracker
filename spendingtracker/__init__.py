@@ -36,32 +36,31 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     login_manager.init_app(app)
 
-
-
-    # from spendingtracker.models import User,Category,Productpurchased
-    # admin.init_app(app)
-    #
-    # admin.add_view(ModelView(User, db.session))
-    # admin.add_view(ModelView(Category, db.session))
-    # admin.add_view(ModelView(Productpurchased, db.session))
+    from spendingtracker.models import User,Category,Productpurchased
+    admin.init_app(app)
+    admin.add_view(ModelView(User, db.session))
+    admin.add_view(ModelView(Category, db.session))
+    admin.add_view(ModelView(Productpurchased, db.session))
 
     from spendingtracker.main.routes import main
     from spendingtracker.users.routes import users
-    from spendingtracker.category.routes import categorybp
+    from spendingtracker.category.routes import categorybp as catt
 
 
     app.register_blueprint(main)
     app.register_blueprint(users)
-    # app.register_blueprint(categorybp)
+    # app.register_blueprint(catt)
 
     #API Marshmallow
     from spendingtracker.api_rest.users_api import usersapi
     from spendingtracker.api_rest.product_api import productapi
+    from spendingtracker.api_rest.category_api import categoryapi
 
     ma.init_app(app)
 
     app.register_blueprint(usersapi)
     app.register_blueprint(productapi)
+    app.register_blueprint(categoryapi)
 
 
     return app

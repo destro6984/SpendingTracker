@@ -4,22 +4,24 @@ from flask_marshmallow.fields import fields
 from flask_restful import Api
 
 from spendingtracker import ma
+from spendingtracker.api_rest.category_api import CategorySchema
 from spendingtracker.models import  Productpurchased
 
 productapi=Blueprint('product_api', __name__,url_prefix='/api')
 api = Api(productapi)
 
 
-class Product(ma.Schema):
+class ProductSchema(ma.Schema):
     price= fields.Decimal()
+    purchase_cat=fields.Nested(CategorySchema)
     class Meta:
         model=Productpurchased
         json_module = simplejson
-        fields=('id','buy_date','price')
+        fields=('id','buy_date','price','purchase_cat')
 
 
-product_schema=Product()
-products_schema=Product(many=True)
+product_schema=ProductSchema()
+products_schema=ProductSchema(many=True)
 
 @productapi.route('/products',methods=['GET'])
 def get_products():

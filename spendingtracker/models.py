@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     bought_products=db.relationship("Productpurchased",backref="purchased_by",lazy=True,cascade = "all, delete-orphan" )
 
     def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.image_file}','{self.bought_products}')"
+        return f"User('{self.username}', mail '{self.email}', Image '{self.image_file}', products '{[prod.purchase_cat.name for prod in self.bought_products]}')"
 
     def get_reset_token(self, expires_sce=1800):
         s= Serializer(current_app.config['SECRET_KEY'],expires_sce)
