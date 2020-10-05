@@ -59,11 +59,8 @@ class Category(db.Model):
     )
 
     def __repr__(self):
-        return "Category(name=%r, id=%r, parent_id=%r)" % (
-            self.name,
-            self.id,
-            self.category_parent_id,
-        )
+        return f'Cat: id: {self.id}, parent: {self.category_parent_id},name: {self.name}, subcategories:{[ subcat for subcat in self.subcategories]}#'
+
 
     def dump(self, _indent=0):
         return (
