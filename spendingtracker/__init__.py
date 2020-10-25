@@ -39,17 +39,19 @@ def create_app(config_class=Config):
     from spendingtracker.models import User,Category,Productpurchased
     admin.init_app(app)
     admin.add_view(ModelView(User, db.session))
-    admin.add_view(ModelView(Category, db.session))
+    # admin.add_view(ModelView(Category, db.session))
     admin.add_view(ModelView(Productpurchased, db.session))
 
     from spendingtracker.main.routes import main
     from spendingtracker.users.routes import users
-    from spendingtracker.category.routes import categorybp as catt
+    from spendingtracker.category.routes import categorybp
+    from spendingtracker.products.routes import productbp
 
 
     app.register_blueprint(main)
     app.register_blueprint(users)
-    # app.register_blueprint(catt)
+    app.register_blueprint(categorybp)
+    app.register_blueprint(productbp)
 
     #API Marshmallow
     from spendingtracker.api_rest.users_api import usersapi
@@ -61,6 +63,7 @@ def create_app(config_class=Config):
     app.register_blueprint(usersapi)
     app.register_blueprint(productapi)
     app.register_blueprint(categoryapi)
+
 
 
     return app
