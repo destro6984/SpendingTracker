@@ -62,6 +62,10 @@
     {% endwith %}
 </div>
 {% block content%}
+{% for route in mapsite%}
+{{route}}
+<br>
+{% endfor %}
 {% endblock %}
 
 <!-- Optional JavaScript -->

@@ -51,14 +51,13 @@ class Productpurchased(db.Model):
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    category_id = db.relationship("Productpurchased", backref="purchase_cat",lazy='subquery')
+    category_id = db.relationship("Productpurchased", backref="purchase_cat")
     category_parent_id = db.Column(db.Integer, db.ForeignKey(id))
     name = db.Column(db.String(50), nullable=False)
     subcategories = db.relationship(
         "Category",
-        lazy='subquery',
         cascade="all, delete-orphan",
-        backref=db.backref("parent", remote_side=id),
+        backref=db.backref("parent", remote_side=id,lazy='subquery'),
         collection_class=attribute_mapped_collection("name"),
     )
 

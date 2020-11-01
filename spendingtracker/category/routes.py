@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, request
+from flask import Blueprint, render_template, flash, request, url_for,redirect
 
 from spendingtracker import db
 from spendingtracker.category.forms import CategoryForm
@@ -19,6 +19,7 @@ def add_cat():
         db.session.add(category)
         db.session.commit()
         flash(f"{category.name}, added")
+        return redirect(url_for('category.add_cat'))
     return render_template('add_category.html',form=form,present_cat=present_maincat)
 
 
@@ -29,8 +30,6 @@ def all_cat():
 
 @categorybp.route('/del-cat/<int:id>', methods=["GET",'POST'])
 def del_cat(id):
-    cat_to_del = Category.query.get(id)
-    db.session.delete(cat_to_del)
-    db.session.commit()
+    cat_to_del = Category.query.get_or_404(id)
     flash(f"{cat_to_del.name}, deleted")
-    return render_template('all_category.html')
+    return redirect(url_for('category.all_cat'))

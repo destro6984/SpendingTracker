@@ -43,7 +43,6 @@ def add_cat():
         db.session.add(new_category)
         db.session.commit()
     else:
-        print(current_user)
         return "asdfasd"
     return category_schema.jsonify(new_category)
 
@@ -52,7 +51,7 @@ def del_cat(id):
     cat_to_del = Category.query.get(id)
     db.session.delete(cat_to_del)
     db.session.commit()
-    return category_schema.jsonify(cat_to_del)
+    return f'Deleted {cat_to_del}'
 
 @categoryapi.route('/update-category/<int:id>', methods=['PUT'])
 def update_cat(id):
