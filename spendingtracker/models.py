@@ -46,12 +46,12 @@ class Productpurchased(db.Model):
                          default=datetime.utcnow)
 
     def __repr__(self):
-        return f"User(price: '{self.price}',purchase_cat: '{self.purchase_cat}',purchased_by: '{self.purchased_by}',buy_date :{self.buy_date})"
+        return f"User(price: '{self.price}',purchase_cat: '{self.purchase_cat.name}',purchased_by: '{self.purchased_by}',buy_date :{self.buy_date})"
 
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    category_id = db.relationship("Productpurchased", backref="purchase_cat")
+    category_id = db.relationship("Productpurchased", backref="purchase_cat",lazy='subquery')
     category_parent_id = db.Column(db.Integer, db.ForeignKey(id))
     name = db.Column(db.String(50), nullable=False)
     subcategories = db.relationship(

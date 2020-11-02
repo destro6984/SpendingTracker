@@ -4,7 +4,11 @@
 <div class="container">
     <form method="post" action="">
         {{ form.hidden_tag() }}
-
+        <label >{{form.price.label}}</label>
+        {{ form.price(class="form-control") }}
+        <label >{{form.cat_of_purchase.label}}</label>
+        {{ form.cat_of_purchase(class="form-control") }}
+        <br>
         {{ form.submit(type="submit", class="btn btn-primary",value="Add") }}
     </form>
 </div>
@@ -13,5 +17,7 @@
 <div class="alert alert-error">
     {{ form[field].label }}: {{ ', '.join(errors) }}
 </div>
+
 {% endfor %}
+
 {%endblock%}

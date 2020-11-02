@@ -3,7 +3,7 @@
 {%block content%}
 <ul class="list-group">
     {% for prod in all_products%}
-    <li class="list-group-item">{{prod.purchase_cat}}{{prod.price}}<span class="mx-5"><a href={{url_for('products.del_prod',id=prod.id)}}>Delete</a></span></li>
+    <li class="list-group-item">{{prod.purchase_cat.name}}:{{prod.price}}<span class="mx-5"><a href={{url_for('products.del_prod',id=prod.id)}}>Delete</a></span></li>
     {%endfor%}
 </ul>
 {%endblock%}
