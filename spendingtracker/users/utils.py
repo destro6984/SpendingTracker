@@ -32,3 +32,7 @@ def send_reset_email(user):
 # If you did not make this request then simply ignore this email and no changes will be made.
 # '''
 #     mail.send(msg)
+
+def allowed_file_ext(filename):
+    filename=os.path.splitext(filename)[1]
+    return filename in current_app.config['UPLOAD_EXTENSIONS']

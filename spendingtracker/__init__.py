@@ -2,6 +2,7 @@ from flask import Flask
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager
 from flask_login import LoginManager
 from flask_marshmallow import Marshmallow
 
@@ -16,6 +17,7 @@ app.config.from_object(Config)
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
+jwt = JWTManager()
 
 ma = Marshmallow()
 
@@ -35,9 +37,11 @@ def create_app(config_class=Config):
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
+    jwt.init_app(app)
+    admin.init_app(app)
 
     from spendingtracker.models import User,Category,Productpurchased
-    admin.init_app(app)
+
     admin.add_view(ModelView(User, db.session))
     # admin.add_view(ModelView(Category, db.session))
     admin.add_view(ModelView(Productpurchased, db.session))
@@ -63,7 +67,5 @@ def create_app(config_class=Config):
     app.register_blueprint(usersapi)
     app.register_blueprint(productapi)
     app.register_blueprint(categoryapi)
-
-
 
     return app

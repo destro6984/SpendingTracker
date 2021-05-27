@@ -1,7 +1,7 @@
 from flask_login import UserMixin
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from spendingtracker import db, login_manager
+from spendingtracker import db, login_manager, bcrypt
 from flask import current_app
 from datetime import datetime
 
@@ -36,6 +36,22 @@ class User(db.Model, UserMixin):
             return None
         return User.query.get(user_id)
 
+    @classmethod
+    def find_by_username(cls, username):
+        return cls.query.filter_by(username=username).first()
+
+    @classmethod
+    def find_by_email(cls, email):
+        return cls.query.filter_by(email=email).first()
+
+    @staticmethod
+    def generate_hash(password):
+        return bcrypt.generate_password_hash(password, 10).decode("utf-8")
+
+    @staticmethod
+    def verify_hash(password, pw_hash):
+        return bcrypt.check_password_hash(pw_hash, password)
+
 
 class Productpurchased(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -51,13 +67,13 @@ class Productpurchased(db.Model):
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    category_id = db.relationship("Productpurchased", backref="purchase_cat",lazy='subquery')
+    category_id = db.relationship("Productpurchased", backref="purchase_cat", lazy='subquery')
     category_parent_id = db.Column(db.Integer, db.ForeignKey(id))
     name = db.Column(db.String(50), nullable=False)
     subcategories = db.relationship(
         "Category",
         cascade="all, delete-orphan",
-        backref=db.backref("parent", remote_side=id,lazy='subquery'),
+        backref=db.backref("parent", remote_side=id, lazy='subquery'),
         collection_class=attribute_mapped_collection("name"),
     )
 

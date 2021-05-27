@@ -2,8 +2,8 @@ from flask import Blueprint, url_for, redirect, render_template, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 
 from spendingtracker import bcrypt, db
-from spendingtracker.models import User
 from spendingtracker.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm
+from spendingtracker.models import User
 from spendingtracker.users.utils import send_reset_email, save_picture
 
 users=Blueprint("users",__name__)
