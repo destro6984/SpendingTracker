@@ -1,6 +1,6 @@
 import simplejson as simplejson
 from flask import Blueprint, jsonify, request, flash
-from flask_login import current_user
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_marshmallow.fields import fields
 from flask_restful import Api
 
@@ -34,10 +34,10 @@ def get_products():
 
 
 @productapi.route('/my-products', methods=['GET'])
+@jwt_required
 def get_myproducts():
-    #curretn_user
-    all_products = User.query.get(1)
-    result = products_schema.dump(all_products.bought_products)
+    current_user = User.find_by_username(get_jwt_identity())
+    result = products_schema.dump(current_user.bought_products)
     return jsonify(result)
 
 
