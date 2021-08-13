@@ -1,32 +1,58 @@
-{% extends "layout.html"%}
-
-{%block content%}
-<div class="container">
-    <form method="post" action="">
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            <label for="exampleInputEmail1">Email address</label>
-            {{ form.email(class="form-control",id="InputEmail1",type='email') }}
-            <small id="email" class="form-text text-muted">We'll never share your email with anyone else.</small>
-        </div>
-        <div class="form-group">
-            <label for="exampleInputPassword1">Password</label>
-            {{ form.password(class="form-control",id="InputPassword1",type='password') }}
-        </div>
-        <div class="form-group form-check">
-            {{ form.remember(class="form-check-input",id="Check1",type='checkbox') }}
-            <label class="form-check-label" for="exampleCheck1">Remember me</label>
-        </div>
-        {{ form.submit(type="submit", class="btn btn-primary",value="Login") }}
-    </form>
-
-
-</div>
-
-{% for field, errors in form.errors.items() %}
-<div class="alert alert-error">
-    {{ form[field].label }}: {{ ', '.join(errors) }}
-</div>
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section main-section m-1 p-2">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Log In</legend>
+                <div class="form-group">
+                    {{ form.email.label(class="form-control-label") }}
+                    {% if form.email.errors %}
+                        {{ form.email(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.email(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.password.label(class="form-control-label") }}
+                    {% if form.password.errors %}
+                        {{ form.password(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.password(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-check">
+                    {{ form.remember(class="form-check-input") }}
+                    {{ form.remember.label(class="form-check-label") }}
+                </div>
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-dark ") }}
+            </div>
+            <small class="text-muted ml-2">
+                <a href="#">Forgot Password?</a>
+            </small>
+        </form>
+    </div>
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            Need An Account? <a class="ml-2" href="{{ url_for('users.register') }}">Sign Up Now</a>
+        </small>
+    </div>
+<!--{% for field, errors in form.errors.items() %}-->
+<!--<div class="alert alert-error">-->
+<!--    {{ form[field].label }}: {{ ', '.join(errors) }}-->
+<!--</div>-->
 {% endfor %}
+{% endblock content %}
 
-{%endblock%}

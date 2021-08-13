@@ -1,31 +1,116 @@
 {% extends "layout.html"%}
 
 {%block content%}
-<div class="container">
-    <form method="post" action="">
-        {{ form.hidden_tag() }}
-        <label >new?</label>
-        {{ form.new_category(class="form-control") }}
-        <label >name</label>
-        {{ form.name(class="form-control") }}
-        <label >Main Category</label>
-        {{ form.main_category(class="form-control") }}
+<div class="row">
+    <div class="col-md-8">
+        <div class="content-section main-section">
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">Add Category</legend>
+                    <div class="form-group form-check">
+                        {{ form.new_category(class="form-check-input") }}
+                        {{ form.new_category.label(class="form-check-label") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.name.label(class="form-control-label") }}
+                        {{ form.name(class="form-control form-control-lg") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.main_category.label(class="form-control-label") }}
+                        {{ form.main_category(class="form-control form-control-lg") }}
+                    </div>
+                    <div class="form-group mt-2">
+                        {{ form.submit(class="btn btn-outline-dark btn-lg") }}
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="content-section main-section">
+            <h3>Current Categories</h3>
+            <div class="accordion" id="accordionExample">
+                {%for cat in present_cat%}
+                {% set outer_loop = loop %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#{{cat.name}}{{loop.index}}" aria-expanded="true"
+                                aria-controls="collapseOne">
+                            {{cat.name}}
+                        </button>
+                    </h2>
+                </div>
+                <div id={{cat.name}}{{loop.index}} class="accordion-collapse collapse" aria-labelledby="headingOne"
+                     data-bs-parent="#accordionExample">
+                    <div class="accordion-body p-1">
+                        <ul class="list-group">
+
+                            {%for subcat in cat.subcategories%}
+
+                            {%if (loop.index == 1) and (cat.subcategories|length >=1) %}
+                            {% set id_name = cat.name %}
+                            <li class="list-group-item list-group-item-light fw-bold">{{cat.name}}
+                                <div>
+                                    <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
+                                            data-bs-target="#DeleteModal{{cat.name}}"></button>
+                                    <i class="fas fa-edit"></i></div>
+                            </li>
+                            {%else%}
+                            {% set id_name = subcat %}
+                            {%endif%}
+                            <li class="list-group-item list-group-item-light">{{subcat}}
+                                <div>
+                                    <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
+                                            data-bs-target="#DeleteModal{{id_name}}"></button>
+                                    <i class="fas fa-edit"></i></div>
+                            </li>
 
 
-        {{ form.submit(type="submit", class="btn btn-primary",value="Add") }}
-    </form>
-</div>
+                        </ul>
 
-{% for field, errors in form.errors.items() %}
-<div class="alert alert-error">
-    {{ form[field].label }}: {{ ', '.join(errors) }}
-</div>
+                        <div class="modal fade" id="DeleteModal{{id_name}}" tabindex="-1"
+                             aria-labelledby="DeleteModalLabel"
+                             aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="DeleteModalLabel">Do you want to delete whole
+                                            category ?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form method="POST" action="{{url_for('category.del_cat', name='Media')}}">
+                                            <input class="btn btn-secondary" type="submit" value="Delete">
+                                        </form>
+                                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Back
+                                        </button>
 
-{% endfor %}
-<div>
-    {%for cat in present_cat%}
-        {{cat.name}}<br>
-        {{cat.subcategories}}<br>
-    {%endfor%}
-</div>
-{%endblock%}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {%endfor%}
+                    </div>
+
+                </div>
+                {%endfor%}
+            </div>
+        </div>
+
+
+        <!--{% for field, errors in form.errors.items() %}-->
+        <!--<div class="alert alert-error">-->
+        <!--    {{ form[field].label }}: {{ ', '.join(errors) }}-->
+        <!--</div>-->
+
+        <!--        {% endfor %}-->
+        <div>
+            {%for cat in present_cat%}
+            {{cat.name}}<br>
+            {{cat.subcategories}}<br>
+            {%endfor%}
+        </div>
+        {%endblock%}
