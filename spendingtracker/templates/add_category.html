@@ -9,8 +9,8 @@
                 <fieldset class="form-group">
                     <legend class="border-bottom mb-4">Add Category</legend>
                     <div class="form-group form-check">
-                        {{ form.new_category(class="form-check-input") }}
                         {{ form.new_category.label(class="form-check-label") }}
+                        {{ form.new_category(class="form-check-input", id="newcat") }}
                     </div>
                     <div class="form-group">
                         {{ form.name.label(class="form-control-label") }}
@@ -46,7 +46,40 @@
                      data-bs-parent="#accordionExample">
                     <div class="accordion-body p-1">
                         <ul class="list-group">
+                            <!--                            delete main category when there is no subcategories-->
+                            {%if (cat.subcategories|length == 0) %}
+                            <li class="list-group-item list-group-item-light fw-bold">{{cat.name}}
+                                <div>
+                                    <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
+                                            data-bs-target="#DeleteModal{{cat.name}}"></button>
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                            </li>
+                            <div class="modal fade" id="DeleteModal{{cat.name}}" tabindex="-1"
+                                 aria-labelledby="DeleteModalLabelMainCat"
+                                 aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="DeleteModalLabelMainCat">Do you want to delete
+                                                main
+                                                category ?</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <form method="POST" action="{{url_for('category.del_cat', name=cat.name)}}">
+                                                <input class="btn btn-secondary" type="submit" value="Delete">
+                                            </form>
+                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Back
+                                            </button>
 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {%endif%}
+                            <!--delete subcategories and main categories with more than on subcategory-->
                             {%for subcat in cat.subcategories%}
 
                             {%if (loop.index == 1) and (cat.subcategories|length >=1) %}
@@ -55,7 +88,8 @@
                                 <div>
                                     <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
                                             data-bs-target="#DeleteModal{{cat.name}}"></button>
-                                    <i class="fas fa-edit"></i></div>
+                                    <i class="fas fa-edit"></i>
+                                </div>
                             </li>
                             {%else%}
                             {% set id_name = subcat %}
@@ -66,8 +100,6 @@
                                             data-bs-target="#DeleteModal{{id_name}}"></button>
                                     <i class="fas fa-edit"></i></div>
                             </li>
-
-
                         </ul>
 
                         <div class="modal fade" id="DeleteModal{{id_name}}" tabindex="-1"
@@ -113,4 +145,14 @@
             {{cat.subcategories}}<br>
             {%endfor%}
         </div>
-        {%endblock%}
+    </div>
+</div>
+<script type=text/javascript>
+    $("#newcat").change(function(){
+        var cat_select=$("#main_category")
+        cat_select.prop("disabled",!cat_select.prop("disabled"));
+    });
+
+
+</script>
+{%endblock%}

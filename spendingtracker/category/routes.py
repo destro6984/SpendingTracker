@@ -36,4 +36,4 @@ def del_cat(name):
     db.session.delete(cat_to_del)
     db.session.commit()
     flash(f"Category Deleted : {cat_to_del.name}", 'danger')
-    return redirect(url_for('category.all_cat'))
+    return redirect(url_for('category.add_cat'))
