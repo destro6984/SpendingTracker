@@ -9,19 +9,18 @@ categorybp = Blueprint('category', __name__)
 
 @categorybp.route('/add-category', methods=['GET', 'POST'])
 def add_cat():
-    present_maincat = Category.query.filter_by(category_parent_id=1).all()
+    main_categories = Category.query.filter_by(category_parent_id=1).all()
     form = CategoryForm()
-    form.main_category.choices = [("", "---")] + [(cat.id, cat.name) for cat in present_maincat]
+    form.main_category.choices = [("", "---")] + [(cat.id, cat.name) for cat in main_categories]
     if form.validate_on_submit() and request.method == 'POST':
-        if form.new_category.data:
-            category = Category(name=form.name.data.capitalize(), parent=Category.query.get(1))
-        else:
-            category = Category(name=form.name.data.capitalize(), parent=Category.query.get(int(form.main_category.data)))
+        main_category_id = int(form.main_category.data) if form.main_category.data else None
+        category = Category.create_category(name=form.name.data.capitalize(),
+                                            parent=Category.query.get(main_category_id))
         db.session.add(category)
         db.session.commit()
         flash(f"Added new Category : {category.name}", "info")
         return redirect(url_for('category.add_cat'))
-    return render_template('add_category.html', form=form, present_cat=present_maincat)
+    return render_template('add_category.html', form=form, main_categories=main_categories)
 
 
 @categorybp.route('/all-category', methods=['GET', "POST"])
@@ -32,6 +31,9 @@ def all_cat():
 
 @categorybp.route('/del-cat/<name>', methods=["GET", 'POST'])
 def del_cat(name):
+    if name == 'Root':
+        flash(f"Cannot Delete this category: {name}", 'danger')
+        return redirect(url_for('category.add_cat'))
     cat_to_del = Category.query.filter_by(name=name).first_or_404()
     db.session.delete(cat_to_del)
     db.session.commit()

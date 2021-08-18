@@ -8,10 +8,7 @@
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
                     <legend class="border-bottom mb-4">Add Category</legend>
-                    <div class="form-group form-check">
-                        {{ form.new_category.label(class="form-check-label") }}
-                        {{ form.new_category(class="form-check-input", id="newcat") }}
-                    </div>
+
                     <div class="form-group">
                         {{ form.name.label(class="form-control-label") }}
                         {{ form.name(class="form-control form-control-lg") }}
@@ -31,7 +28,7 @@
         <div class="content-section main-section">
             <h3>Current Categories</h3>
             <div class="accordion" id="accordionExample">
-                {%for cat in present_cat%}
+                {%for cat in main_categories%}
                 {% set outer_loop = loop %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingOne">
@@ -140,19 +137,12 @@
 
         <!--        {% endfor %}-->
         <div>
-            {%for cat in present_cat%}
+            {%for cat in main_categories%}
             {{cat.name}}<br>
             {{cat.subcategories}}<br>
             {%endfor%}
         </div>
     </div>
 </div>
-<script type=text/javascript>
-    $("#newcat").change(function(){
-        var cat_select=$("#main_category")
-        cat_select.prop("disabled",!cat_select.prop("disabled"));
-    });
 
-
-</script>
 {%endblock%}

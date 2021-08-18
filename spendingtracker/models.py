@@ -87,3 +87,17 @@ class Category(db.Model):
                 + "\n"
                 + "".join([c.dump(_indent + 1) for c in self.subcategories.values()])
         )
+
+    @classmethod
+    def create_category(cls, name, parent):
+        root_category = Category.query.first()
+        if not root_category:
+            root = cls(name="Root")
+            db.session.add(root)
+            db.session.commit()
+            new_cat = cls(name=name, parent=Category.query.get(1))
+        elif parent:
+            new_cat = cls(name=name, parent=Category.query.get(parent))
+        else:
+            new_cat = cls(name=name, parent=Category.query.get(1))
+        return new_cat
