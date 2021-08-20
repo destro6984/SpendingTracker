@@ -97,7 +97,7 @@ class Category(db.Model):
             db.session.commit()
             new_cat = cls(name=name, parent=Category.query.get(1))
         elif parent:
-            new_cat = cls(name=name, parent=Category.query.get(parent))
+            new_cat = cls(name=name, parent=Category.query.get(parent.id))
         else:
             new_cat = cls(name=name, parent=Category.query.get(1))
         return new_cat

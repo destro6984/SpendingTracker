@@ -45,7 +45,7 @@
                         <ul class="list-group">
                             <!--                            delete main category when there is no subcategories-->
                             {%if (cat.subcategories|length == 0) %}
-                            <li class="list-group-item list-group-item-light fw-bold">{{cat.name}}
+                            <li class="list-group-item list-group-item-dark fw-bold ">{{cat.name}}
                                 <div>
                                     <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
                                             data-bs-target="#DeleteModal{{cat.name}}"></button>
@@ -81,7 +81,7 @@
 
                             {%if (loop.index == 1) and (cat.subcategories|length >=1) %}
                             {% set id_name = cat.name %}
-                            <li class="list-group-item list-group-item-light fw-bold">{{cat.name}}
+                            <li class="list-group-item list-group-item-dark fw-bold">{{cat.name}}
                                 <div>
                                     <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
                                             data-bs-target="#DeleteModal{{cat.name}}"></button>
