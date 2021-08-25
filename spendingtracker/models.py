@@ -1,9 +1,9 @@
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from spendingtracker import db, login_manager, bcrypt
 from flask import current_app
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 @login_manager.user_loader
@@ -59,15 +59,33 @@ class Productpurchased(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
     buy_date = db.Column(db.DateTime, nullable=False,
-                         default=datetime.utcnow)
+                         default=datetime.today())
+
+    @classmethod
+    def all_user_products_by_period(cls, period):
+        if not period:
+            period='all'
+        product_result = {
+            "all": cls.query.filter_by(user_id=current_user.id).all(),
+            "today": cls.query.filter_by(user_id=current_user.id).filter(
+                db.func.strftime('%Y-%m-%d', Productpurchased.buy_date) == datetime.today().date()).all(),
+            "7days": cls.query.filter_by(user_id=current_user.id).filter(
+                db.func.strftime('%Y-%m-%d', Productpurchased.buy_date) >= (
+                        datetime.now() - timedelta(days=7)).date()).all(),
+            "month": cls.query.filter_by(user_id=current_user.id).filter(
+                db.func.strftime('%m', Productpurchased.buy_date) == datetime.now().strftime('%m')).all(),
+            "year": cls.query.filter_by(user_id=current_user.id).filter(
+                db.func.strftime('%Y', Productpurchased.buy_date) == datetime.now().strftime('%Y')).all()
+        }
+        return product_result[period]
 
     def __repr__(self):
-        return f"User(price: '{self.price}',purchase_cat: '{self.purchase_cat.name}',purchased_by: '{self.purchased_by}',buy_date :{self.buy_date})"
+        return f"Productpurchased(price: '{self.price}',purchase_cat: '{self.purchase_cat.name}',purchased_by: '{self.purchased_by.username}',buy_date :{self.buy_date})"
 
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    category_id = db.relationship("Productpurchased", backref="purchase_cat", lazy='subquery')
+    purchasedproducts = db.relationship("Productpurchased", backref="purchase_cat", lazy='subquery')
     category_parent_id = db.Column(db.Integer, db.ForeignKey(id))
     name = db.Column(db.String(50), nullable=False)
     subcategories = db.relationship(
@@ -78,7 +96,7 @@ class Category(db.Model):
     )
 
     def __repr__(self):
-        return f'Cat: id: {self.id}, parent: {self.category_parent_id},name: {self.name}, subcategories:{[subcat for subcat in self.subcategories]}#'
+        return f'Category: id: {self.id},purchasedproducts:{[prod.purchase_cat.name for prod in self.purchasedproducts]}, parent: {self.category_parent_id},name: {self.name}, subcategories:{[subcat for subcat in self.subcategories]}#'
 
     def dump(self, _indent=0):
         return (

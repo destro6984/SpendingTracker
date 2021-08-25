@@ -8,7 +8,7 @@
             <form method="POST" action="">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
-                    <legend class="border-bottom mb-4">Add Category</legend>
+                    <legend class="border-bottom mb-4">Add Purchase</legend>
 
                     <div class="form-group">
                         {{ form.price.label(class="form-control-label") }}
@@ -27,7 +27,11 @@
                     </div>
                 </fieldset>
             </form>
-
+            {% for field, errors in form.errors.items() %}
+            <div class="alert alert-error">
+                {{ form[field].label }}: {{ ', '.join(errors) }}
+            </div>
+            {% endfor %}
         </div>
     </div>
     <div class="col-md-4">
@@ -42,18 +46,20 @@
             </ul>
         </div>
     </div>
-</div>
-{% for field, errors in form.errors.items() %}
-<div class="alert alert-error">
-    {{ form[field].label }}: {{ ', '.join(errors) }}
 
 </div>
-{% endfor %}
+
+
 <script type="text/javascript">
 
   $( function() {
-    $( "#datepicker" ).datepicker();
+    $( "#datepicker" ).datepicker(
+        {dateFormat: "dd/mm/yy"
+        });
   } );
+
+
+
 
 </script>
 
