@@ -1,10 +1,12 @@
+import os
+
 from flask import Blueprint, url_for, redirect, render_template, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 
-from spendingtracker import bcrypt, db
+from spendingtracker import bcrypt, db, s3_client
 from spendingtracker.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm
 from spendingtracker.models import User
-from spendingtracker.users.utils import send_reset_email, save_picture
+from spendingtracker.users.utils import send_reset_email, save_picture, show_image
 
 users=Blueprint("users",__name__)
 
@@ -65,7 +67,8 @@ def account():
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.email.data = current_user.email
-    image_file = url_for('static', filename='profile_pic/' + current_user.image_file)
+    # image_file = url_for('static', filename='profile_pic/' + current_user.image_file)
+    image_file = show_image(current_user.image_file)
     return render_template('account.html', title='Account',
                            image_file=image_file, form=form)
 
