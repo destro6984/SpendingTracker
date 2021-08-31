@@ -2,7 +2,7 @@ import os
 
 
 class Config:
-    DEBUG=True
+    DEBUG = True
     SECRET_KEY = os.environ.get("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -12,7 +12,8 @@ class Config:
 
 
 class ConfigProd(Config):
-    DEBUG=False
+    DEBUG = False
     S3_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
     S3_KEY = os.environ.get("S3_KEY")
     S3_SECRET_ACCESS_KEY = os.environ.get("S3_SECRET_ACCESS_KEY")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
