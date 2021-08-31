@@ -8,7 +8,7 @@ from marshmallow import fields, INCLUDE
 from flask_login import current_user
 from werkzeug.utils import secure_filename
 
-from spendingtracker import ma, db, app
+from spendingtracker import ma, db
 from spendingtracker.api_rest.product_api import ProductSchema
 from spendingtracker.models import User
 from spendingtracker.users.utils import allowed_file_ext
