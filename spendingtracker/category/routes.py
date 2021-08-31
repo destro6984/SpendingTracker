@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, flash, request, url_for, redirect
+from flask_login import login_required
 
 from spendingtracker import db
 from spendingtracker.category.forms import CategoryForm
@@ -8,6 +9,7 @@ categorybp = Blueprint('category', __name__)
 
 
 @categorybp.route('/add-category', methods=['GET', 'POST'])
+@login_required
 def add_cat():
     main_categories = Category.query.filter_by(category_parent_id=1).all()
     form = CategoryForm()
@@ -24,12 +26,14 @@ def add_cat():
 
 
 @categorybp.route('/all-category', methods=['GET', "POST"])
+@login_required
 def all_cat():
     all_cat = Category.query.all()
     return render_template("all_category.html", all_cat=all_cat)
 
 
 @categorybp.route('/del-cat/<name>', methods=["GET", 'POST'])
+@login_required
 def del_cat(name):
     if name == 'Root':
         flash(f"Cannot Delete this category: {name}", 'danger')

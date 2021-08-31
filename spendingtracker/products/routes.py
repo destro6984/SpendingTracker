@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from flask import Blueprint, render_template, flash, request, url_for, redirect, make_response
-from flask_login import current_user
+from flask_login import current_user, login_required
 from sqlalchemy.orm import aliased
 
 from spendingtracker import db
@@ -13,6 +13,7 @@ productbp = Blueprint('products', __name__)
 
 @productbp.route('/all-products', methods=['GET', "POST"])
 @productbp.route('/all-products/<period>', methods=['GET', "POST"])
+@login_required
 def all_prod(period=None):
     all_products = Productpurchased.all_user_products_by_period(period)
     all_subcat_products_filtered = db.session.query(Category, Productpurchased).outerjoin(Category,
@@ -34,6 +35,7 @@ def all_prod(period=None):
 
 
 @productbp.route('/add-product', methods=['GET', 'POST'])
+@login_required
 def add_product():
     present_maincat = Category.query.filter(Category.category_parent_id != 1).all()
     recent_shopping = Productpurchased.query.filter_by(user_id=current_user.id).limit(10).all()
@@ -51,6 +53,7 @@ def add_product():
 
 
 @productbp.route('/del-prod/<int:id>', methods=["GET", 'POST'])
+@login_required
 def del_prod(id):
     prod_to_del = Productpurchased.query.get_or_404(id)
     db.session.delete(prod_to_del)
