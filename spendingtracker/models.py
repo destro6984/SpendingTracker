@@ -67,15 +67,12 @@ class Productpurchased(db.Model):
             period='all'
         product_result = {
             "all": cls.query.filter_by(user_id=current_user.id).all(),
-            "today": cls.query.filter_by(user_id=current_user.id).filter(
-                db.func.strftime('%Y-%m-%d', Productpurchased.buy_date) == datetime.today().date()).all(),
-            "7days": cls.query.filter_by(user_id=current_user.id).filter(
-                db.func.strftime('%Y-%m-%d', Productpurchased.buy_date) >= (
+            "today": cls.query.filter_by(user_id=current_user.id).filter(Productpurchased.buy_date == datetime.today().date()).all(),
+            "7days": cls.query.filter_by(user_id=current_user.id).filter(Productpurchased.buy_date >= (
                         datetime.now() - timedelta(days=7)).date()).all(),
-            "month": cls.query.filter_by(user_id=current_user.id).filter(
-                db.func.strftime('%m', Productpurchased.buy_date) == datetime.now().strftime('%m')).all(),
+            "month": cls.query.filter_by(user_id=current_user.id).filter(db.func.extract('month',Productpurchased.buy_date) == datetime.now().strftime('%m')).all(),
             "year": cls.query.filter_by(user_id=current_user.id).filter(
-                db.func.strftime('%Y', Productpurchased.buy_date) == datetime.now().strftime('%Y')).all()
+                db.func.extract('year', Productpurchased.buy_date) == datetime.now().strftime('%Y')).all()
         }
         return product_result[period]
 

@@ -18,7 +18,7 @@ def all_prod(period=None):
     all_products = Productpurchased.all_user_products_by_period(period)
     all_subcat_products_filtered = db.session.query(Category, Productpurchased).outerjoin(Category,
                                                                                           Productpurchased.product_id == Category.id).filter(
-        Productpurchased.user_id == current_user.id).group_by(Category.id, db.func.date(Productpurchased.buy_date))
+        Productpurchased.user_id == current_user.id).group_by(Productpurchased.id,Category.id, Productpurchased.buy_date)
 
     all_subcat_products_filtered_dict = {query_res[0]: str(query_res[1]) for query_res in all_subcat_products_filtered}
 
@@ -26,8 +26,8 @@ def all_prod(period=None):
     sum_each_cat = db.session.query(cat_parent.name, db.func.sum(Productpurchased.price)).outerjoin(
         Category, Productpurchased.product_id == Category.id).outerjoin(cat_parent,
                                                                         Category.category_parent_id == cat_parent.id).filter(
-                db.func.strftime('%m', Productpurchased.buy_date) == datetime.now().strftime('%m')).group_by(
-        Category.category_parent_id).all()
+        db.func.extract('month', Productpurchased.buy_date) == datetime.now().strftime('%m')).group_by(
+        Category.category_parent_id,cat_parent.name).all()
     sum_each_cat_piechart_dict = {query_res[0]: str(query_res[1]) for query_res in sum_each_cat}
 
     return render_template("all_products.html", all_products=all_products, cat_cost=sum_each_cat_piechart_dict,
