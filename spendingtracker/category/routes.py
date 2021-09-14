@@ -18,8 +18,6 @@ def add_cat():
         main_category_id = int(form.main_category.data) if form.main_category.data else None
         category = Category.create_category(name=form.name.data.capitalize(),
                                             parent=Category.query.get(main_category_id))
-        db.session.add(category)
-        db.session.commit()
         flash(f"Added new Category : {category.name}", "info")
         return redirect(url_for('category.add_cat'))
     return render_template('add_category.html', form=form, main_categories=main_categories)

@@ -4,7 +4,8 @@ import os
 class Config:
     DEBUG = True
     SECRET_KEY = os.environ.get("SECRET_KEY")
-    SQLALCHEMY_DATABASE_URI = f"postgresql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@localhost/{os.environ.get('DB_NAME')}"
+    # SQLALCHEMY_DATABASE_URI = f"postgresql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@localhost/{os.environ.get('DB_NAME')}"
+    SQLALCHEMY_DATABASE_URI = f"postgresql://postgres:Atos2019@@localhost/flask_sptracker"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_FOLDER = 'static/profile_pic'
     UPLOAD_EXTENSIONS = ['.jpg', '.png', '.jpeg']

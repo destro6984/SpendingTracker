@@ -11,6 +11,12 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+user_categories = db.Table('user_cat',
+                           db.Column('cat_id', db.Integer, db.ForeignKey('category.id'), primary_key=True),
+                           db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True)
+                           )
+
+
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
@@ -19,6 +25,8 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(60), nullable=False)
     bought_products = db.relationship("Productpurchased", backref="purchased_by",
                                       cascade="all, delete-orphan")
+    categories_set = db.relationship('Category', secondary=user_categories, lazy='subquery',
+                                     backref=db.backref('users', lazy=True))
 
     def __repr__(self):
         return f"User('{self.username}', mail '{self.email}', Image '{self.image_file}', products '{[prod.purchase_cat.name for prod in self.bought_products]}')"
@@ -64,13 +72,15 @@ class Productpurchased(db.Model):
     @classmethod
     def all_user_products_by_period(cls, period):
         if not period:
-            period='all'
+            period = 'all'
         product_result = {
             "all": cls.query.filter_by(user_id=current_user.id).all(),
-            "today": cls.query.filter_by(user_id=current_user.id).filter(Productpurchased.buy_date == datetime.today().date()).all(),
+            "today": cls.query.filter_by(user_id=current_user.id).filter(
+                Productpurchased.buy_date == datetime.today().date()).all(),
             "7days": cls.query.filter_by(user_id=current_user.id).filter(Productpurchased.buy_date >= (
-                        datetime.now() - timedelta(days=7)).date()).all(),
-            "month": cls.query.filter_by(user_id=current_user.id).filter(db.func.extract('month',Productpurchased.buy_date) == datetime.now().strftime('%m')).all(),
+                    datetime.now() - timedelta(days=7)).date()).all(),
+            "month": cls.query.filter_by(user_id=current_user.id).filter(
+                db.func.extract('month', Productpurchased.buy_date) == datetime.now().strftime('%m')).all(),
             "year": cls.query.filter_by(user_id=current_user.id).filter(
                 db.func.extract('year', Productpurchased.buy_date) == datetime.now().strftime('%Y')).all()
         }
@@ -105,7 +115,17 @@ class Category(db.Model):
 
     @classmethod
     def create_category(cls, name, parent):
+        """
+            Function serves all possible cases:
+                -create first-category:adding root category,parent==root
+                -create sub-category: adding the parent
+                -create same-name category:append only category.users many-to-many
+        :param name:
+        :param parent:
+        :return:
+        """
         root_category = Category.query.first()
+        already_exist_cat = Category.find_by_name(name)
         if not root_category:
             root = cls(name="Root")
             db.session.add(root)
@@ -115,4 +135,14 @@ class Category(db.Model):
             new_cat = cls(name=name, parent=Category.query.get(parent.id))
         else:
             new_cat = cls(name=name, parent=Category.query.get(1))
+        if already_exist_cat:
+            already_exist_cat.users.append(current_user)
+        else:
+            new_cat.users.append(current_user)
+            db.session.add(new_cat)
+            db.session.commit()
         return new_cat
+
+    @classmethod
+    def find_by_name(cls, name):
+        return cls.query.filter_by(name=name).first()
