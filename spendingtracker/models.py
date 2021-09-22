@@ -1,4 +1,6 @@
 from flask_login import UserMixin, current_user
+from sqlalchemy import and_
+from sqlalchemy.orm import aliased
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from spendingtracker import db, login_manager, bcrypt
@@ -25,11 +27,9 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(60), nullable=False)
     bought_products = db.relationship("Productpurchased", backref="purchased_by",
                                       cascade="all, delete-orphan")
-    categories_set = db.relationship('Category', secondary=user_categories, lazy='subquery',
-                                     backref=db.backref('users', lazy=True))
 
     def __repr__(self):
-        return f"User('{self.username}', mail '{self.email}', Image '{self.image_file}', products '{[prod.purchase_cat.name for prod in self.bought_products]}')"
+        return f"User('{self.username}', mail '{self.email}', Image '{self.image_file}', products '{[prod.purchase_cat.name for prod in self.bought_products]}',categories_set {[cat.name for cat in self.categories_set]})"
 
     def get_reset_token(self, expires_sce=1800):
         s = Serializer(current_app.config['SECRET_KEY'], expires_sce)
@@ -59,6 +59,10 @@ class User(db.Model, UserMixin):
     @staticmethod
     def verify_hash(password, pw_hash):
         return bcrypt.check_password_hash(pw_hash, password)
+
+    @classmethod
+    def is_cat_in_category_set(cls, cat_name):
+        return cls.category_set.filter(cls.category_set.any(name=cat_name))
 
 
 class Productpurchased(db.Model):
@@ -95,15 +99,17 @@ class Category(db.Model):
     purchasedproducts = db.relationship("Productpurchased", backref="purchase_cat", lazy='subquery')
     category_parent_id = db.Column(db.Integer, db.ForeignKey(id))
     name = db.Column(db.String(50), nullable=False)
+    users = db.relationship('User', secondary=user_categories, lazy='subquery',
+                            backref=db.backref('category_set', lazy=True))
     subcategories = db.relationship(
         "Category",
         cascade="all, delete-orphan",
         backref=db.backref("parent", remote_side=id, lazy='subquery'),
-        collection_class=attribute_mapped_collection("name"),
+        collection_class=attribute_mapped_collection("name")
     )
 
     def __repr__(self):
-        return f'Category: id: {self.id},purchasedproducts:{[prod.purchase_cat.name for prod in self.purchasedproducts]}, parent: {self.category_parent_id},name: {self.name}, subcategories:{[subcat for subcat in self.subcategories]}#'
+        return f'Category: id: {self.id},purchasedproducts:{[prod.purchase_cat.name for prod in self.purchasedproducts]}, parent: {self.category_parent_id},name: {self.name}, current_users_subcategories:{self.users_subcategories(self.name)} subcategories:{[subcat for subcat in self.subcategories]} users: {[user.username for user in self.users]}#'
 
     def dump(self, _indent=0):
         return (
@@ -126,6 +132,10 @@ class Category(db.Model):
         """
         root_category = Category.query.first()
         already_exist_cat = Category.find_by_name(name)
+        if already_exist_cat:
+            current_user.category_set.append(already_exist_cat)
+            db.session.commit()
+            return already_exist_cat
         if not root_category:
             root = cls(name="Root")
             db.session.add(root)
@@ -135,14 +145,31 @@ class Category(db.Model):
             new_cat = cls(name=name, parent=Category.query.get(parent.id))
         else:
             new_cat = cls(name=name, parent=Category.query.get(1))
-        if already_exist_cat:
-            already_exist_cat.users.append(current_user)
-        else:
-            new_cat.users.append(current_user)
-            db.session.add(new_cat)
-            db.session.commit()
+
+        new_cat.users.append(current_user)
+        db.session.add(new_cat)
+        db.session.commit()
         return new_cat
+
+    @classmethod
+    def is_in_user_cat_set(cls, name):
+        return cls.query.filter(cls.name == name).filter(cls.users.any(id=current_user.id)).first()
 
     @classmethod
     def find_by_name(cls, name):
         return cls.query.filter_by(name=name).first()
+
+    @classmethod
+    def users_subcategories(cls, cat_name):
+        cat_parent = aliased(cls)
+
+        user_subcategories = db.session.query(cls.name).join(
+            cls.parent.of_type(cat_parent)).filter(cat_parent.name == cat_name).filter(
+            cls.users.any(id=current_user.id)).filter(cat_parent.users.any(id=current_user.id)).all()
+        return [sub_cat.name for sub_cat in user_subcategories]
+
+    @classmethod
+    def users_main_categories(cls):
+        main_categories = cls.query.join(cls.users).filter(User.id == current_user.id).filter(
+            cls.category_parent_id == 1).all()
+        return main_categories

@@ -44,7 +44,7 @@
                     <div class="accordion-body p-1">
                         <ul class="list-group">
                             <!--                            delete main category when there is no subcategories-->
-                            {%if (cat.subcategories|length == 0) %}
+                            {%if (cat.users_subcategories(cat.name)|length == 0) %}
                             <li class="list-group-item list-group-item-dark fw-bold ">{{cat.name}}
                                 <div>
                                     <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
@@ -66,6 +66,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <form method="POST" action="{{url_for('category.del_cat', name=cat.name)}}">
+                                                {{ form.hidden_tag() }}
                                                 <input class="btn btn-secondary" type="submit" value="Delete">
                                             </form>
                                             <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Back
@@ -77,9 +78,9 @@
                             </div>
                             {%endif%}
                             <!--delete subcategories and main categories with more than on subcategory-->
-                            {%for subcat in cat.subcategories%}
+                            {%for subcat in cat.users_subcategories(cat.name)%}
 
-                            {%if (loop.index == 1) and (cat.subcategories|length >=1) %}
+                            {%if (loop.index == 1) and (cat.users_subcategories(cat.name)|length >=1) %}
                             {% set id_name = cat.name %}
                             <li class="list-group-item list-group-item-dark fw-bold">{{cat.name}}
                                 <div>
@@ -111,7 +112,8 @@
                                                 aria-label="Close"></button>
                                     </div>
                                     <div class="modal-footer">
-                                        <form method="POST" action="{{url_for('category.del_cat', name='Media')}}">
+                                        <form method="POST" action="{{url_for('category.del_cat', name=subcat)}}">
+                                            {{ form.hidden_tag() }}
                                             <input class="btn btn-secondary" type="submit" value="Delete">
                                         </form>
                                         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Back
@@ -136,12 +138,12 @@
         <!--</div>-->
 
         <!--        {% endfor %}-->
-        <div>
-            {%for cat in main_categories%}
-            {{cat.name}}<br>
-            {{cat.subcategories}}<br>
-            {%endfor%}
-        </div>
+<!--        <div>-->
+<!--            {%for cat in main_categories%}-->
+<!--            {{cat.name}}<br>-->
+<!--            {{cat.users_subcategories(cat.name)}}<br>-->
+<!--            {%endfor%}-->
+<!--        </div>-->
     </div>
 </div>
 

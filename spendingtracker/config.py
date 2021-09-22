@@ -10,6 +10,7 @@ class Config:
     UPLOAD_FOLDER = 'static/profile_pic'
     UPLOAD_EXTENSIONS = ['.jpg', '.png', '.jpeg']
     MAX_CONTENT_LENGTH = 1024 * 1024
+    SESSION_COOKIE_SECURE=False
 
 
 class ConfigProd(Config):
