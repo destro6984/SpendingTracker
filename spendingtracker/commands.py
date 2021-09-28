@@ -1,8 +1,11 @@
+import random
+from datetime import datetime, timedelta
+
 import click
 from flask.cli import with_appcontext
 
 from spendingtracker import db, create_app, bcrypt
-from spendingtracker.models import User, Category
+from spendingtracker.models import User, Category, Productpurchased
 
 
 def reset_db():
@@ -63,11 +66,23 @@ def create_default_category_set(curr_user_id):
 @click.option('--curr_user_id')
 def create_default_shopping(curr_user_id):
     with create_app().app_context():
-        if not User.query.get(curr_user_id):
+        curr_user = User.query.get(curr_user_id)
+        if not curr_user:
             print('NO TEST USER')
             return None
-    for product in range(0, 250):
-        pass
+        category_select = [cat.id for cat in Category.users_sub_categories(curr_user=curr_user)]
+
+        start = datetime.now()
+        end = start - timedelta(days=31)
+        random_date = start + (end - start) * random.random()
+        product_list=[]
+        for product in range(0, 151):
+            purchased = Productpurchased(price=round(random.uniform(0.1, 1000), 2), purchased_by=curr_user,
+                                         purchase_cat=Category.query.get(random.choice(category_select)),
+                                         buy_date=random_date.strftime('%Y-%m-%d'))
+            product_list.append(purchased)
+        db.session.add_all(product_list)
+        db.session.commit()
 
 
 def init_app(app):
