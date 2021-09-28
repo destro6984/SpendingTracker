@@ -11,7 +11,7 @@ categorybp = Blueprint('category', __name__)
 @categorybp.route('/add-category', methods=['GET', 'POST'])
 @login_required
 def add_cat():
-    main_categories = Category.users_main_categories()
+    main_categories = Category.users_main_categories(curr_user=current_user)
 
     form = CategoryForm()
     form.main_category.choices = [("", "---")] + [(cat.id, cat.name) for cat in main_categories]
@@ -21,7 +21,7 @@ def add_cat():
             flash(f"You have such Category already  : {form.name.data.capitalize()}", "danger")
             return redirect(url_for('category.add_cat'))
         category = Category.create_category(name=form.name.data.capitalize(),
-                                            parent=Category.query.get(main_category_id))
+                                            parent=Category.query.get(main_category_id),curr_user_id=current_user.id)
         flash(f"Added new Category : {category.name}", "info")
         return redirect(url_for('category.add_cat'))
     return render_template('add_category.html', form=form, main_categories=main_categories)

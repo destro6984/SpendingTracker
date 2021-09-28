@@ -44,7 +44,7 @@
                     <div class="accordion-body p-1">
                         <ul class="list-group">
                             <!--                            delete main category when there is no subcategories-->
-                            {%if (cat.users_subcategories(cat.name)|length == 0) %}
+                            {%if (cat.users_subcategories(cat.name,current_user)|length == 0) %}
                             <li class="list-group-item list-group-item-dark fw-bold ">{{cat.name}}
                                 <div>
                                     <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
@@ -78,9 +78,9 @@
                             </div>
                             {%endif%}
                             <!--delete subcategories and main categories with more than on subcategory-->
-                            {%for subcat in cat.users_subcategories(cat.name)%}
+                            {%for subcat in cat.users_subcategories(cat.name,current_user)%}
 
-                            {%if (loop.index == 1) and (cat.users_subcategories(cat.name)|length >=1) %}
+                            {%if (loop.index == 1) and (cat.users_subcategories(cat.name,current_user)|length >=1) %}
                             {% set id_name = cat.name %}
                             <li class="list-group-item list-group-item-dark fw-bold">{{cat.name}}
                                 <div>
@@ -141,7 +141,7 @@
 <!--        <div>-->
 <!--            {%for cat in main_categories%}-->
 <!--            {{cat.name}}<br>-->
-<!--            {{cat.users_subcategories(cat.name)}}<br>-->
+<!--            {{cat.users_subcategories(cat.name,current_user)}}<br>-->
 <!--            {%endfor%}-->
 <!--        </div>-->
     </div>

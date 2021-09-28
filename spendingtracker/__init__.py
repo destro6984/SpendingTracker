@@ -13,7 +13,6 @@ from flask_sqlalchemy import SQLAlchemy
 import boto3
 from botocore.client import Config as ConfigS3
 from flask_wtf import CSRFProtect
-
 from spendingtracker.config import Config, ConfigProd
 
 
@@ -41,6 +40,9 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     jwt.init_app(app)
     # admin.init_app(app)
+
+    from spendingtracker import commands
+    commands.init_app(app)
 
     from spendingtracker.models import User, Category, Productpurchased
 

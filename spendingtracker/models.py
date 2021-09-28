@@ -29,7 +29,7 @@ class User(db.Model, UserMixin):
                                       cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"User('{self.username}', mail '{self.email}', Image '{self.image_file}', products '{[prod.purchase_cat.name for prod in self.bought_products]}',categories_set {[cat.name for cat in self.categories_set]})"
+        return f"User('{self.username}', mail '{self.email}', Image '{self.image_file}', products '{[prod.purchase_cat.name for prod in self.bought_products]}',categories_set {[cat.name for cat in self.category_set]})"
 
     def get_reset_token(self, expires_sce=1800):
         s = Serializer(current_app.config['SECRET_KEY'], expires_sce)
@@ -109,7 +109,7 @@ class Category(db.Model):
     )
 
     def __repr__(self):
-        return f'Category: id: {self.id},purchasedproducts:{[prod.purchase_cat.name for prod in self.purchasedproducts]}, parent: {self.category_parent_id},name: {self.name}, current_users_subcategories:{self.users_subcategories(self.name)} subcategories:{[subcat for subcat in self.subcategories]} users: {[user.username for user in self.users]}#'
+        return f'Category: id: {self.id},purchasedproducts:{[prod.purchase_cat.name for prod in self.purchasedproducts]}, parent: {self.category_parent_id},name: {self.name}, current_users_subcategories:{self.users_subcategories(self.name, self)} subcategories:{[subcat for subcat in self.subcategories]} users: {[user.username for user in self.users]}#'
 
     def dump(self, _indent=0):
         return (
@@ -120,20 +120,21 @@ class Category(db.Model):
         )
 
     @classmethod
-    def create_category(cls, name, parent):
+    def create_category(cls, name, parent, curr_user_id):
         """
             Function serves all possible cases:
                 -create first-category:adding root category,parent==root
-                -create sub-category: adding the parent
+                -create sub-category: adding category with parent
                 -create same-name category:append only category.users many-to-many
         :param name:
         :param parent:
         :return:
         """
-        root_category = Category.query.first()
+        curr_user = User.query.get(curr_user_id)
+        root_category = Category.query.get(1)
         already_exist_cat = Category.find_by_name(name)
         if already_exist_cat:
-            current_user.category_set.append(already_exist_cat)
+            curr_user.category_set.append(already_exist_cat)
             db.session.commit()
             return already_exist_cat
         if not root_category:
@@ -146,7 +147,7 @@ class Category(db.Model):
         else:
             new_cat = cls(name=name, parent=Category.query.get(1))
 
-        new_cat.users.append(current_user)
+        new_cat.users.append(curr_user)
         db.session.add(new_cat)
         db.session.commit()
         return new_cat
@@ -160,16 +161,29 @@ class Category(db.Model):
         return cls.query.filter_by(name=name).first()
 
     @classmethod
-    def users_subcategories(cls, cat_name):
+    def users_subcategories(cls, cat_name, curr_user=None):
+        """
+
+        :param cat_name:
+        :param curr_user:
+        :return: subcategories of particular main_category which is in current_user.category_set
+        """
         cat_parent = aliased(cls)
 
         user_subcategories = db.session.query(cls.name).join(
             cls.parent.of_type(cat_parent)).filter(cat_parent.name == cat_name).filter(
-            cls.users.any(id=current_user.id)).filter(cat_parent.users.any(id=current_user.id)).all()
+            cls.users.any(id=curr_user.id)).filter(cat_parent.users.any(id=curr_user.id)).all()
+
         return [sub_cat.name for sub_cat in user_subcategories]
 
     @classmethod
-    def users_main_categories(cls):
-        main_categories = cls.query.join(cls.users).filter(User.id == current_user.id).filter(
+    def users_main_categories(cls, curr_user=None):
+        main_categories = cls.query.join(cls.users).filter(User.id == curr_user.id).filter(
             cls.category_parent_id == 1).all()
+        return main_categories
+
+    @classmethod
+    def users_sub_categories(cls, curr_user=None):
+        main_categories = cls.query.join(cls.users).filter(User.id == curr_user.id).filter(
+            cls.category_parent_id != 1).all()
         return main_categories

@@ -39,11 +39,12 @@ def all_prod(period=None):
 @login_required
 def add_product():
     present_maincat = Category.query.filter(Category.category_parent_id != 1).all()
+    # present_maincat = Category.users_main_categories(curr_user=current_user)
     recent_shopping = Productpurchased.query.filter_by(user_id=current_user.id).limit(10).all()
     form = ProductForm()
     form.cat_of_purchase.choices = [("", "---")] + [(cat.id, cat.name) for cat in present_maincat]
     if form.validate_on_submit() and request.method == 'POST':
-        product = Productpurchased(price=form.price.data, purchased_by=User.query.get(1),
+        product = Productpurchased(price=form.price.data, purchased_by=current_user,
                                    purchase_cat=Category.query.get(int(form.cat_of_purchase.data)),
                                    buy_date=form.purchase_date.data)
         db.session.add(product)
