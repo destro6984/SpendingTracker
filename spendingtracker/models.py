@@ -183,7 +183,7 @@ class Category(db.Model):
         return main_categories
 
     @classmethod
-    def users_sub_categories(cls, curr_user=None):
+    def users_all_sub_categories(cls, curr_user=None):
         main_categories = cls.query.join(cls.users).filter(User.id == curr_user.id).filter(
             cls.category_parent_id != 1).all()
         return main_categories

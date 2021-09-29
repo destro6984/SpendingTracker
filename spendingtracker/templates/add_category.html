@@ -26,125 +26,97 @@
     </div>
     <div class="col-md-4">
         <div class="content-section main-section">
-            <h3>Current Categories</h3>
+            {%for cat in main_categories%}
             <div class="accordion" id="accordionExample">
-                {%for cat in main_categories%}
-                {% set outer_loop = loop %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingOne">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#{{cat.name}}{{loop.index}}" aria-expanded="true"
+                                data-bs-target="#collapse{{loop.index}}" aria-expanded="false"
                                 aria-controls="collapseOne">
                             {{cat.name}}
                         </button>
+
                     </h2>
-                </div>
-                <div id={{cat.name}}{{loop.index}} class="accordion-collapse collapse" aria-labelledby="headingOne"
-                     data-bs-parent="#accordionExample">
-                    <div class="accordion-body p-1">
-                        <ul class="list-group">
-                            <!--                            delete main category when there is no subcategories-->
-                            {%if (cat.users_subcategories(cat.name,current_user)|length == 0) %}
-                            <li class="list-group-item list-group-item-dark fw-bold ">{{cat.name}}
-                                <div>
-                                    <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
-                                            data-bs-target="#DeleteModal{{cat.name}}"></button>
-                                    <i class="fas fa-edit"></i>
-                                </div>
-                            </li>
-                            <div class="modal fade" id="DeleteModal{{cat.name}}" tabindex="-1"
-                                 aria-labelledby="DeleteModalLabelMainCat"
-                                 aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="DeleteModalLabelMainCat">Do you want to delete
-                                                main
-                                                category ?</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <form method="POST" action="{{url_for('category.del_cat', name=cat.name)}}">
-                                                {{ form.hidden_tag() }}
-                                                <input class="btn btn-secondary" type="submit" value="Delete">
-                                            </form>
-                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Back
-                                            </button>
 
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {%endif%}
-                            <!--delete subcategories and main categories with more than on subcategory-->
-                            {%for subcat in cat.users_subcategories(cat.name,current_user)%}
+                    <div id="collapse{{loop.index}}" class="accordion-collapse collapse " aria-labelledby="headingOne"
+                         data-bs-parent="#accordionExample">
+                        <div class="accordion-body border bg-secondary">
+                            {{cat.name}}
 
-                            {%if (loop.index == 1) and (cat.users_subcategories(cat.name,current_user)|length >=1) %}
-                            {% set id_name = cat.name %}
-                            <li class="list-group-item list-group-item-dark fw-bold">{{cat.name}}
-                                <div>
-                                    <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
-                                            data-bs-target="#DeleteModal{{cat.name}}"></button>
-                                    <i class="fas fa-edit"></i>
-                                </div>
-                            </li>
-                            {%else%}
-                            {% set id_name = subcat %}
-                            {%endif%}
-                            <li class="list-group-item list-group-item-light">{{subcat}}
-                                <div>
-                                    <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
-                                            data-bs-target="#DeleteModal{{id_name}}"></button>
-                                    <i class="fas fa-edit"></i></div>
-                            </li>
-                        </ul>
-
-                        <div class="modal fade" id="DeleteModal{{id_name}}" tabindex="-1"
-                             aria-labelledby="DeleteModalLabel"
-                             aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="DeleteModalLabel">Do you want to delete whole
-                                            category ?</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <form method="POST" action="{{url_for('category.del_cat', name=subcat)}}">
-                                            {{ form.hidden_tag() }}
-                                            <input class="btn btn-secondary" type="submit" value="Delete">
-                                        </form>
-                                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Back
-                                        </button>
-
-                                    </div>
-                                </div>
+                            <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal"
+                                    data-bs-whatever="{{cat.name}}">
+                            </button>
+                        </div>
+                        {%for subcat in cat.users_subcategories(cat.name,curr_user=current_user)%}
+                        <div class="accordion-body border">
+                            <div>
+                                <span>{{subcat}}</span>
+                                <button type="button" class="btn fas fa-trash p-0" data-bs-toggle="modal"
+                                        data-bs-target="#exampleModal"
+                                        data-bs-whatever="{{subcat}}">
+                                </button>
                             </div>
                         </div>
                         {%endfor%}
                     </div>
 
                 </div>
-                {%endfor%}
+
+
             </div>
+            {%endfor%}
+
         </div>
-
-
-        <!--{% for field, errors in form.errors.items() %}-->
-        <!--<div class="alert alert-error">-->
-        <!--    {{ form[field].label }}: {{ ', '.join(errors) }}-->
-        <!--</div>-->
-
-        <!--        {% endfor %}-->
-<!--        <div>-->
-<!--            {%for cat in main_categories%}-->
-<!--            {{cat.name}}<br>-->
-<!--            {{cat.users_subcategories(cat.name,current_user)}}<br>-->
-<!--            {%endfor%}-->
-<!--        </div>-->
     </div>
+
+
+    <!--{% for field, errors in form.errors.items() %}-->
+    <!--<div class="alert alert-error">-->
+    <!--    {{ form[field].label }}: {{ ', '.join(errors) }}-->
+    <!--</div>-->
+
+    <!--        {% endfor %}-->
+    <!--        <div>-->
+    <!--            {%for cat in main_categories%}-->
+    <!--            {{cat.name}}<br>-->
+    <!--            {{cat.users_subcategories(cat.name,current_user)}}<br>-->
+    <!--            {%endfor%}-->
+    <!--        </div>-->
+    <!--        </div>-->
 </div>
 
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Do you want to delete whole
+                    category ?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-footer">
+                <form method="POST" id="del-form">
+                    {{ form.hidden_tag() }}
+                    <input class="btn btn-secondary" type="submit" value="Delete">
+                </form>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Back
+                </button>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var exampleModal = document.getElementById('exampleModal')
+exampleModal.addEventListener('show.bs.modal', function (event) {
+  var button = event.relatedTarget
+  var form = document.getElementById('del-form')
+  form.action={{url_for('category.del_cat',name=cat_to_del)}} + button.getAttribute('data-bs-whatever')
+})
+
+
+
+</script>
 {%endblock%}

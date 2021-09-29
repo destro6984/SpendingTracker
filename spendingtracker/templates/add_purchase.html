@@ -40,7 +40,7 @@
             <ul class="list-group list-group-flush ">
                 {%for product in recent_shopping %}
                 <li class="list-group-item">
-                    <div><span>{{product.price}} {{product.purchase_cat.name}} {{product.buy_date}}</span></div>
+                    <div><span>{{product.price}} {{product.purchase_cat.name}} {{product.buy_date.strftime("%d-%m-%Y")}}</span></div>
                 </li>
                 {%endfor%}
             </ul>

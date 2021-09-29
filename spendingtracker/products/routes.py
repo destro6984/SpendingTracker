@@ -38,8 +38,8 @@ def all_prod(period=None):
 @productbp.route('/add-product', methods=['GET', 'POST'])
 @login_required
 def add_product():
-    user_subcat = Category.users_sub_categories(curr_user=current_user)
-    # present_maincat = Category.users_main_categories(curr_user=current_user)
+    user_subcat = Category.users_all_sub_categories(curr_user=current_user)
+
     recent_shopping = Productpurchased.query.filter_by(user_id=current_user.id).limit(10).all()
     form = ProductForm()
     form.cat_of_purchase.choices = [("", "---")] + [(cat.id, cat.name) for cat in user_subcat]
