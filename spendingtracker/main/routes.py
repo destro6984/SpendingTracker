@@ -9,5 +9,5 @@ main=Blueprint('main', __name__)
 @main.route('/home')
 def home():
     map_site = ['%s' % rule for rule in current_app.url_map.iter_rules()]
-    return render_template("layout.html",mapsite=map_site)
+    return render_template("layout.html",mapsite=[])
 
