@@ -14,7 +14,7 @@ import boto3
 from botocore.client import Config as ConfigS3
 from flask_wtf import CSRFProtect
 from spendingtracker.config import Config, ConfigProd
-
+from spendingtracker.error_handlers import server_error
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -70,5 +70,7 @@ def create_app(config_class=Config):
     app.register_blueprint(usersapi)
     app.register_blueprint(productapi)
     app.register_blueprint(categoryapi)
+    #error handlers
+    app.register_error_handler(500, server_error)
 
     return app
