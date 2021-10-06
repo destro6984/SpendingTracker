@@ -1,9 +1,6 @@
 import os
 
-from dotenv import load_dotenv
 from flask import Flask
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_login import LoginManager
@@ -25,7 +22,6 @@ ma = Marshmallow()
 login_manager = LoginManager()
 login_manager.login_view = 'users.login'
 login_manager.login_message_category = 'info'
-admin = Admin(name='spentrc', template_mode='bootstrap3')
 s3_client = boto3.client("s3", region_name=os.environ.get("S3_REGION_NAME"), aws_access_key_id=os.environ.get("S3_KEY"),
                          aws_secret_access_key=os.environ.get("S3_SECRET_ACCESS_KEY"),
                          config=ConfigS3(signature_version='s3v4'))
@@ -39,16 +35,12 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     jwt.init_app(app)
-    # admin.init_app(app)
 
     from spendingtracker import commands
     commands.init_app(app)
 
     from spendingtracker.models import User, Category, Productpurchased
 
-    # admin.add_view(ModelView(User, db.session))
-    # # admin.add_view(ModelView(Category, db.session))
-    # admin.add_view(ModelView(Productpurchased, db.session))
 
     from spendingtracker.main.routes import main
     from spendingtracker.users.routes import users

@@ -32,7 +32,7 @@ users_schema = UserSchema(many=True, only=['id', 'username', 'email', 'image_fil
 
 
 @usersapi.route('/users', methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_users():
     all_users = User.query.all()
     result = users_schema.dump(all_users)
@@ -66,7 +66,7 @@ def login_user():
 
 
 @usersapi.route('/user/<int:id>', methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_one_user(id):
     one_user = User.query.filter_by(id=id).first()
     result = user_schema.dump(one_user)
@@ -74,7 +74,7 @@ def get_one_user(id):
 
 
 @usersapi.route('/update/<int:id>', methods=['PATCH'])
-@jwt_required
+@jwt_required()
 def update_account(id):
     data = request.form
     user_image = request.files['image_file']
@@ -90,6 +90,6 @@ def update_account(id):
 
 
 @usersapi.route('/avatar/<file_name>', methods=['GET'])
-@jwt_required
+@jwt_required()
 def check_avat(file_name):
     return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename=file_name)

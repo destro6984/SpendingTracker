@@ -4,14 +4,14 @@ from datetime import datetime, timedelta
 import click
 from flask.cli import with_appcontext
 
-from spendingtracker import db, create_app, bcrypt
+from spendingtracker import db, create_app, bcrypt, ConfigProd
 from spendingtracker.models import User, Category, Productpurchased
 
 
 def reset_db():
     """Creates database"""
-    db.drop_all(app=create_app())
-    db.create_all(app=create_app())
+    db.drop_all(app=create_app(config_class=ConfigProd))
+    db.create_all(app=create_app(config_class=ConfigProd))
     print('db restarted')
 
 

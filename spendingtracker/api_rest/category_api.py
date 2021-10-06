@@ -28,7 +28,7 @@ categories_schema = CategorySchema(many=True,only=['id','name','subcategories.na
 
 
 @categoryapi.route('/categories', methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_categories():
     all_categories = Category.query.all()
     result = categories_schema.dump(all_categories)
@@ -48,7 +48,7 @@ def add_cat():
         return category_schema.jsonify(new_category)
 
 @categoryapi.route('/del-category/<int:id>', methods=['DELETE'])
-@jwt_required
+@jwt_required()
 def del_cat(id):
     cat_to_del = Category.query.get(id)
     db.session.delete(cat_to_del)
@@ -56,7 +56,7 @@ def del_cat(id):
     return f'Deleted {cat_to_del}'
 
 @categoryapi.route('/update-category/<int:id>', methods=['PUT'])
-@jwt_required
+@jwt_required()
 def update_cat(id):
     cat_to_update= Category.query.get(id)
     cat_to_update.name=request.json['name']

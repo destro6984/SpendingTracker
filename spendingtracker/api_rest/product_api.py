@@ -34,7 +34,7 @@ def get_products():
 
 
 @productapi.route('/my-products', methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_myproducts():
     current_user = User.find_by_username(get_jwt_identity())
     result = products_schema.dump(current_user.bought_products)
