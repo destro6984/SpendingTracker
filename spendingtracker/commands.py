@@ -10,9 +10,10 @@ from spendingtracker.models import User, Category, Productpurchased
 
 def reset_db():
     """Creates database"""
-    db.drop_all(app=create_app(config_class=ConfigProd))
-    db.create_all(app=create_app(config_class=ConfigProd))
-    print('db restarted')
+    with create_app().app_context():
+        db.drop_all()
+        db.create_all()
+        print('db restarted')
 
 
 def create_test_user():
@@ -79,9 +80,9 @@ def create_default_shopping(curr_user_id):
 
         start = datetime.now()
         end = start - timedelta(days=31)
-        random_date = start + (end - start) * random.random()
         product_list = []
         for product in range(0, 11):
+            random_date = start + (end - start) * random.random()
             purchased = Productpurchased(price=round(random.uniform(0.1, 1000), 2), purchased_by=curr_user,
                                          purchase_cat=Category.query.get(random.choice(category_select)),
                                          buy_date=random_date.strftime('%Y-%m-%d'))

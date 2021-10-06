@@ -29,7 +29,10 @@ s3_client = boto3.client("s3", region_name=os.environ.get("S3_REGION_NAME"), aws
 
 def create_app(config_class=Config):
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    if app.config['ENV'] == 'development':
+        app.config.from_object(config.Config)
+    else:
+        app.config.from_object(config.ConfigProd)
     db.init_app(app)
     csrf.init_app(app)
     bcrypt.init_app(app)
@@ -40,7 +43,6 @@ def create_app(config_class=Config):
     commands.init_app(app)
 
     from spendingtracker.models import User, Category, Productpurchased
-
 
     from spendingtracker.main.routes import main
     from spendingtracker.users.routes import users
@@ -62,7 +64,7 @@ def create_app(config_class=Config):
     app.register_blueprint(usersapi)
     app.register_blueprint(productapi)
     app.register_blueprint(categoryapi)
-    #error handlers
+    # error handlers
     app.register_error_handler(500, server_error)
 
     return app
