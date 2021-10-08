@@ -23,7 +23,7 @@ def save_picture(form_picture):
 
     # https: // jdhao.github.io / 2019 / 07 / 06 / python_opencv_pil_image_to_bytes /
     buf = io.BytesIO()
-    i.save(buf, format='JPEG')
+    i.save(buf, format=f_ext.strip('.'))
     byte_img = buf.getvalue()
 
     try:

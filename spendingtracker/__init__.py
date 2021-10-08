@@ -27,7 +27,7 @@ s3_client = boto3.client("s3", region_name=os.environ.get("S3_REGION_NAME"), aws
                          config=ConfigS3(signature_version='s3v4'))
 
 
-def create_app(config_class=Config):
+def create_app():
     app = Flask(__name__)
     if app.config['ENV'] == 'development':
         app.config.from_object(config.Config)

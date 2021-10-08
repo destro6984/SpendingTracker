@@ -8,13 +8,17 @@ from marshmallow import fields, INCLUDE
 from flask_login import current_user
 from werkzeug.utils import secure_filename
 
-from spendingtracker import ma, db
+from spendingtracker import ma, db, csrf
 from spendingtracker.api_rest.product_api import ProductSchema
 from spendingtracker.models import User
-from spendingtracker.users.utils import allowed_file_ext
+from spendingtracker.users.utils import allowed_file_ext, save_picture, show_image
 
 usersapi = Blueprint('users_api', __name__, url_prefix='/api')
+csrf.exempt(usersapi)
 api = Api(usersapi)
+
+
+# https://stackoverflow.com/questions/21509728/flask-restful-post-fails-due-csrf-protection-of-flask-wtf
 
 
 class UserSchema(ma.Schema):
@@ -80,16 +84,27 @@ def update_account(id):
     user_image = request.files['image_file']
     sec_user_image = secure_filename(user_image.filename)
     user = User.query.get_or_404(id)
+    changed = []
     if user_image and allowed_file_ext(sec_user_image):
-        user_image.save(os.path.join(current_app.root_path, 'static/profile_pic', sec_user_image))
-        user.image_file = sec_user_image
+        picture_file = save_picture(user_image)
+        user.image_file = picture_file
+        changed.append('image_file')
+        # user_image.save(os.path.join(current_app.root_path, 'static/profile_pic', sec_user_image))
+        # user.image_file = sec_user_image
     if data['email'] and not User.find_by_email(data['email']):
         user.email = data['email']
+        changed.append('email')
     db.session.commit()
-    return jsonify({'message': 'Change implemented email'})
+    return jsonify({'message': f'Change implemented {changed}'})
 
 
 @usersapi.route('/avatar/<file_name>', methods=['GET'])
 @jwt_required()
 def check_avat(file_name):
-    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename=file_name)
+    return show_image(file_name)
+
+
+# @usersapi.route('/avatar/<file_name>', methods=['GET'])
+# @jwt_required()
+# def check_avat(file_name):
+#     return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename=file_name)

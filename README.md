@@ -17,6 +17,7 @@ SPENDINGTRACKER is a Flask app which helps you to manage your everyday spending.
 ### Solutions to implement:
 
 - [ ] API
+- [ ] Docker contener
 
 **Heroku**
 

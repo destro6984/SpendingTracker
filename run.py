@@ -1,7 +1,7 @@
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv("./spendingtracker/.env"), verbose=True)
-from spendingtracker import create_app, ConfigProd
+from spendingtracker import create_app
 
 app = create_app()
 
