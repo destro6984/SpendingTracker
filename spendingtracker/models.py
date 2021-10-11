@@ -29,7 +29,7 @@ class User(db.Model, UserMixin):
                                       cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"User('{self.username}', mail '{self.email}', Image '{self.image_file}', products '{[prod.purchase_cat.name for prod in self.bought_products]}',categories_set {[cat.name for cat in self.category_set]})"
+        return f"User('{self.username}', mail '{self.email}', Image '{self.image_file}', bought_products '{[prod.purchase_cat.name for prod in self.bought_products]}',categories_set {[cat.name for cat in self.category_set]})"
 
     def get_reset_token(self, expires_sce=1800):
         s = Serializer(current_app.config['SECRET_KEY'], expires_sce)
@@ -89,6 +89,27 @@ class Productpurchased(db.Model):
                 db.func.extract('year', Productpurchased.buy_date) == datetime.now().strftime('%Y')).all()
         }
         return product_result[period]
+
+    @classmethod
+    def sumprice_of_product_each_subcat(cls):
+        sum_of_products = cls.query.with_entities(Category.name,
+                                                  db.func.sum(cls.price).label(
+                                                      'total')).filter(
+            cls.user_id == current_user.id).outerjoin(Category, cls.product_id == Category.id).group_by(
+            Category.name)
+        return sum_of_products
+
+    @classmethod
+    def sumprice_of_product_each_maincat(cls):
+        cat_parent = aliased(Category)
+        period={'month':db.func.extract('month', cls.buy_date) == datetime.now().strftime('%m'),
+                'year':db.func.extract('year', cls.buy_date) == datetime.now().strftime('%Y')}
+        sum_of_products = cls.query.with_entities(cat_parent.name, db.func.sum(cls.price)).outerjoin(
+            Category, cls.product_id == Category.id).outerjoin(cat_parent,
+                                                               Category.category_parent_id == cat_parent.id).filter(period['month']).filter(
+            cls.user_id == current_user.id).group_by(
+            Category.category_parent_id, cat_parent.name).all()
+        return sum_of_products
 
     def __repr__(self):
         return f"Productpurchased(price: '{self.price}',purchase_cat: '{self.purchase_cat.name}',purchased_by: '{self.purchased_by.username}',buy_date :{self.buy_date})"

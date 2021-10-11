@@ -62,8 +62,8 @@
       function drawChart() {
         var data = google.visualization.arrayToDataTable([
         ["cos", "mos"],
-          {% for cat_name, sum in cat_cost.items()%}
-          ['{{cat_name}}', {{sum}}],
+          {% for cat_name, sum_of_prod in sumprice_each_maincat_piechart_dict.items()%}
+          ['{{cat_name}}', {{sum_of_prod}}],
 
           {%endfor%}
         ]);
@@ -88,9 +88,9 @@
         data.addColumn('string', 'Summary');
 
 
-        {% for cat in all_subcat_products_filtered %}
+        {% for prod,sum_of_prod_cat in sumprice_of_product_each_subcat_tabchart_dict.items() %}
                 data.addRows([
-                  ['{{cat.name}}',"{{ cat.purchasedproducts|sum(attribute='price') }}"]
+                  ['{{prod}}',"{{ sum_of_prod_cat }}"]
                 ]);
           {%endfor%}
         var table = new google.visualization.Table(document.getElementById('table_div'));

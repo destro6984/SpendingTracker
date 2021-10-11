@@ -16,23 +16,19 @@ productbp = Blueprint('products', __name__)
 @login_required
 def all_prod(period=None):
     all_products = Productpurchased.all_user_products_by_period(period)
-    all_subcat_products_filtered = db.session.query(Category, Productpurchased).outerjoin(Category,
-                                                                                          Productpurchased.product_id == Category.id).filter(
-        Productpurchased.user_id == current_user.id).group_by(Productpurchased.id, Category.id,
-                                                              Productpurchased.buy_date)
 
-    all_subcat_products_filtered_dict = {query_res[0]: str(query_res[1]) for query_res in all_subcat_products_filtered}
+    sumprice_of_product_each_subcat = Productpurchased.sumprice_of_product_each_subcat()
 
-    cat_parent = aliased(Category)
-    sum_each_cat = db.session.query(cat_parent.name, db.func.sum(Productpurchased.price)).outerjoin(
-        Category, Productpurchased.product_id == Category.id).outerjoin(cat_parent,
-                                                                        Category.category_parent_id == cat_parent.id).filter(
-        db.func.extract('month', Productpurchased.buy_date) == datetime.now().strftime('%m')).group_by(
-        Category.category_parent_id, cat_parent.name).all()
-    sum_each_cat_piechart_dict = {query_res[0]: str(query_res[1]) for query_res in sum_each_cat}
+    sumprice_of_product_each_subcat_tabchart_dict = {query_res[0]: str(query_res[1]) for query_res in
+                                                     sumprice_of_product_each_subcat}
 
-    return render_template("all_products.html", all_products=all_products, cat_cost=sum_each_cat_piechart_dict,
-                           all_subcat_products_filtered=all_subcat_products_filtered_dict)
+    sumprice_of_product_each_maincat = Productpurchased.sumprice_of_product_each_maincat()
+    sumprice_of_product_each_maincat_piechart_dict = {query_res[0]: str(query_res[1]) for query_res in
+                                                      sumprice_of_product_each_maincat}
+
+    return render_template("all_products.html", all_products=all_products,
+                           sumprice_each_maincat_piechart_dict=sumprice_of_product_each_maincat_piechart_dict,
+                           sumprice_of_product_each_subcat_tabchart_dict=sumprice_of_product_each_subcat_tabchart_dict)
 
 
 @productbp.route('/add-product', methods=['GET', 'POST'])
