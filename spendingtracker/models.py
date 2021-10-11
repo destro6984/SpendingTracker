@@ -102,11 +102,12 @@ class Productpurchased(db.Model):
     @classmethod
     def sumprice_of_product_each_maincat(cls):
         cat_parent = aliased(Category)
-        period={'month':db.func.extract('month', cls.buy_date) == datetime.now().strftime('%m'),
-                'year':db.func.extract('year', cls.buy_date) == datetime.now().strftime('%Y')}
+        period = {'month': db.func.extract('month', cls.buy_date) == datetime.now().strftime('%m'),
+                  'year': db.func.extract('year', cls.buy_date) == datetime.now().strftime('%Y')}
         sum_of_products = cls.query.with_entities(cat_parent.name, db.func.sum(cls.price)).outerjoin(
             Category, cls.product_id == Category.id).outerjoin(cat_parent,
-                                                               Category.category_parent_id == cat_parent.id).filter(period['month']).filter(
+                                                               Category.category_parent_id == cat_parent.id).filter(
+            period['month']).filter(
             cls.user_id == current_user.id).group_by(
             Category.category_parent_id, cat_parent.name).all()
         return sum_of_products
