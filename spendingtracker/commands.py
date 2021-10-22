@@ -5,7 +5,7 @@ import click
 from flask.cli import with_appcontext
 
 from spendingtracker import db, create_app, bcrypt, ConfigProd
-from spendingtracker.models import User, Category, Productpurchased
+from spendingtracker.models import User, Category, ProductPurchased
 
 
 def reset_db():
@@ -83,7 +83,7 @@ def create_default_shopping(curr_user_id):
         product_list = []
         for product in range(0, 11):
             random_date = start + (end - start) * random.random()
-            purchased = Productpurchased(price=round(random.uniform(0.1, 1000), 2), purchased_by=curr_user,
+            purchased = ProductPurchased(price=round(random.uniform(0.1, 1000), 2), purchased_by=curr_user,
                                          purchase_cat=Category.query.get(random.choice(category_select)),
                                          buy_date=random_date.strftime('%Y-%m-%d'))
             product_list.append(purchased)

@@ -5,10 +5,11 @@ from flask_marshmallow.fields import fields
 from flask_restful import Api
 from marshmallow import pre_dump, INCLUDE
 
-from spendingtracker import ma, db
-from spendingtracker.models import Productpurchased, Category
+from spendingtracker import ma, db, csrf
+from spendingtracker.models import ProductPurchased, Category
 
 categoryapi = Blueprint('category_api', __name__, url_prefix='/api')
+csrf.exempt(categoryapi)
 api = Api(categoryapi)
 
 
@@ -20,11 +21,12 @@ class CategorySchema(ma.Schema):
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'subcategories', 'parent.id')
+        # fields = ('id', 'name', 'subcategories', 'parent.id')
+        load_instance=True
 
 
 category_schema = CategorySchema()
-categories_schema = CategorySchema(many=True,only=['id','name','subcategories.name'])
+categories_schema = CategorySchema(many=True)
 
 
 @categoryapi.route('/categories', methods=['GET'])

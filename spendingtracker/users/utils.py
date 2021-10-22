@@ -65,6 +65,7 @@ def send_reset_email(user):
 # '''
 #     mail.send(msg)
 
-def allowed_file_ext(filename):
-    filename = os.path.splitext(filename)[1]
-    return filename in current_app.config['UPLOAD_EXTENSIONS']
+def allowed_file_ext(filename =None):
+    if filename:
+        filename = os.path.splitext(filename)[1]
+        return filename in current_app.config['UPLOAD_EXTENSIONS']

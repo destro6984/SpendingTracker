@@ -42,7 +42,7 @@ def create_app():
     from spendingtracker import commands
     commands.init_app(app)
 
-    from spendingtracker.models import User, Category, Productpurchased
+    from spendingtracker.models import User, Category, ProductPurchased
 
     from spendingtracker.main.routes import main
     from spendingtracker.users.routes import users

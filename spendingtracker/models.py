@@ -25,7 +25,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default='default.png')
     password = db.Column(db.String(60), nullable=False)
-    bought_products = db.relationship("Productpurchased", backref="purchased_by",
+    bought_products = db.relationship("ProductPurchased", backref="purchased_by",
                                       cascade="all, delete-orphan")
 
     def __repr__(self):
@@ -65,11 +65,11 @@ class User(db.Model, UserMixin):
         return cls.category_set.filter(cls.category_set.any(name=cat_name))
 
 
-class Productpurchased(db.Model):
+class ProductPurchased(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     price = db.Column(db.Numeric(10, 2), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
     buy_date = db.Column(db.DateTime, nullable=False,
                          default=datetime.today())
 
@@ -80,13 +80,13 @@ class Productpurchased(db.Model):
         product_result = {
             "all": cls.query.filter_by(user_id=current_user.id).all(),
             "today": cls.query.filter_by(user_id=current_user.id).filter(
-                Productpurchased.buy_date == datetime.today().date()).all(),
-            "7days": cls.query.filter_by(user_id=current_user.id).filter(Productpurchased.buy_date >= (
+                ProductPurchased.buy_date == datetime.today().date()).all(),
+            "7days": cls.query.filter_by(user_id=current_user.id).filter(ProductPurchased.buy_date >= (
                     datetime.now() - timedelta(days=7)).date()).all(),
             "month": cls.query.filter_by(user_id=current_user.id).filter(
-                db.func.extract('month', Productpurchased.buy_date) == datetime.now().strftime('%m')).all(),
+                db.func.extract('month', ProductPurchased.buy_date) == datetime.now().strftime('%m')).all(),
             "year": cls.query.filter_by(user_id=current_user.id).filter(
-                db.func.extract('year', Productpurchased.buy_date) == datetime.now().strftime('%Y')).all()
+                db.func.extract('year', ProductPurchased.buy_date) == datetime.now().strftime('%Y')).all()
         }
         return product_result[period]
 
@@ -95,7 +95,7 @@ class Productpurchased(db.Model):
         sum_of_products = cls.query.with_entities(Category.name,
                                                   db.func.sum(cls.price).label(
                                                       'total')).filter(
-            cls.user_id == current_user.id).outerjoin(Category, cls.product_id == Category.id).group_by(
+            cls.user_id == current_user.id).outerjoin(Category, cls.category_id == Category.id).group_by(
             Category.name)
         return sum_of_products
 
@@ -105,20 +105,20 @@ class Productpurchased(db.Model):
         period = {'month': db.func.extract('month', cls.buy_date) == datetime.now().strftime('%m'),
                   'year': db.func.extract('year', cls.buy_date) == datetime.now().strftime('%Y')}
         sum_of_products = cls.query.with_entities(cat_parent.name, db.func.sum(cls.price)).outerjoin(
-            Category, cls.product_id == Category.id).outerjoin(cat_parent,
-                                                               Category.category_parent_id == cat_parent.id).filter(
+            Category, cls.category_id == Category.id).outerjoin(cat_parent,
+                                                                Category.category_parent_id == cat_parent.id).filter(
             period['month']).filter(
             cls.user_id == current_user.id).group_by(
             Category.category_parent_id, cat_parent.name).all()
         return sum_of_products
 
     def __repr__(self):
-        return f"Productpurchased(price: '{self.price}',purchase_cat: '{self.purchase_cat.name}',purchased_by: '{self.purchased_by.username}',buy_date :{self.buy_date})"
+        return f"ProductPurchased(price: '{self.price}',purchase_cat: '{self.purchase_cat.name}',purchased_by: '{self.purchased_by.username}',buy_date :{self.buy_date})"
 
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    purchasedproducts = db.relationship("Productpurchased", backref="purchase_cat", lazy='subquery')
+    purchasedproducts = db.relationship("ProductPurchased", backref="purchase_cat", lazy='subquery',cascade="all, delete-orphan")
     category_parent_id = db.Column(db.Integer, db.ForeignKey(id))
     name = db.Column(db.String(50), nullable=False)
     users = db.relationship('User', secondary=user_categories, lazy='subquery',

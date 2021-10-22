@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 from sqlalchemy.orm import aliased
 
 from spendingtracker import db
-from spendingtracker.models import Category, Productpurchased, User
+from spendingtracker.models import Category, ProductPurchased, User
 from spendingtracker.products.forms import ProductForm
 
 productbp = Blueprint('products', __name__)
@@ -15,14 +15,14 @@ productbp = Blueprint('products', __name__)
 @productbp.route('/all-products/<period>', methods=['GET', "POST"])
 @login_required
 def all_prod(period=None):
-    all_products = Productpurchased.all_user_products_by_period(period)
+    all_products = ProductPurchased.all_user_products_by_period(period)
 
-    sumprice_of_product_each_subcat = Productpurchased.sumprice_of_product_each_subcat()
+    sumprice_of_product_each_subcat = ProductPurchased.sumprice_of_product_each_subcat()
 
     sumprice_of_product_each_subcat_tabchart_dict = {query_res[0]: str(query_res[1]) for query_res in
                                                      sumprice_of_product_each_subcat}
 
-    sumprice_of_product_each_maincat = Productpurchased.sumprice_of_product_each_maincat()
+    sumprice_of_product_each_maincat = ProductPurchased.sumprice_of_product_each_maincat()
     sumprice_of_product_each_maincat_piechart_dict = {query_res[0]: str(query_res[1]) for query_res in
                                                       sumprice_of_product_each_maincat}
 
@@ -36,11 +36,11 @@ def all_prod(period=None):
 def add_product():
     user_subcat = Category.users_all_sub_categories(curr_user=current_user)
 
-    recent_shopping = Productpurchased.query.filter_by(user_id=current_user.id).limit(10).all()
+    recent_shopping = ProductPurchased.query.filter_by(user_id=current_user.id).limit(10).all()
     form = ProductForm()
     form.cat_of_purchase.choices = [("", "---")] + [(cat.id, cat.name) for cat in user_subcat]
     if form.validate_on_submit() and request.method == 'POST':
-        product = Productpurchased(price=form.price.data, purchased_by=current_user,
+        product = ProductPurchased(price=form.price.data, purchased_by=current_user,
                                    purchase_cat=Category.query.get(int(form.cat_of_purchase.data)),
                                    buy_date=form.purchase_date.data)
         db.session.add(product)
@@ -53,7 +53,7 @@ def add_product():
 @productbp.route('/del-prod/<int:id>', methods=["GET", 'POST'])
 @login_required
 def del_prod(id):
-    prod_to_del = Productpurchased.query.get_or_404(id)
+    prod_to_del = ProductPurchased.query.get_or_404(id)
     db.session.delete(prod_to_del)
     flash(f"{prod_to_del.purchase_cat.name}, deleted")
     db.session.commit()
