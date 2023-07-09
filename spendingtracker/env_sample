@@ -1,0 +1,17 @@
+FLASK_ENV=development
+
+DB_USER="user"
+DB_PASSWORD="password"
+DB_NAME=flask_sptracker
+
+
+S3_BUCKET_NAME=""
+S3_KEY=""
+S3_REGION_NAME=""
+
+S3_SECRET_ACCESS_KEY=""
+
+SECRET_KEY=""
+
+
+DATABASE_URL="db"
