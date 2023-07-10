@@ -21,6 +21,6 @@ SPENDINGTRACKER is a Flask app which helps you to manage your everyday spending.
 
 **Heroku**
 
-- [Heroku link](https://moneyspendingtracker.herokuapp.com)
+- [Render link](https://money-tracker-lmn1.onrender.com)
 
 
