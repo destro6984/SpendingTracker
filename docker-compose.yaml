@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./
+    command: python run.py
+    volumes:
+      - ./:/app/
+    ports:
+      - 5000:5000
+    env_file:
+      - ./spendingtracker/.env
+    depends_on:
+      - db
+  db:
+    image: postgres:13
+    ports:
+      - 5432:5432
+    env_file:
+      - ./spendingtracker/.env
+
+

@@ -1,8 +1,8 @@
 FLASK_ENV=development
 
-DB_USER="user"
-DB_PASSWORD="password"
-DB_NAME=flask_sptracker
+POSTGRES_USER="user"
+POSTGRES_PASSWORD="password"
+POSTGRES_DB=flask_sptracker
 
 
 S3_BUCKET_NAME=""

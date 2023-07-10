@@ -1,15 +1,16 @@
 import os
-from dotenv import load_dotenv, find_dotenv
+
+from dotenv import find_dotenv, load_dotenv
 
 
 class Config:
     load_dotenv(find_dotenv("./spendingtracker/.env"), verbose=True)
     DEBUG = True
     SECRET_KEY = os.environ.get("SECRET_KEY")
-    SQLALCHEMY_DATABASE_URI = f"postgresql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@localhost/{os.environ.get('DB_NAME')}"
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{os.environ.get('POSTGRES_USER')}:{os.environ.get('POSTGRES_PASSWORD')}@localhost/{os.environ.get('POSTGRES_DB')}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    UPLOAD_FOLDER = 'static/profile_pic'
-    UPLOAD_EXTENSIONS = ['.jpg', '.png', '.jpeg']
+    UPLOAD_FOLDER = "static/profile_pic"
+    UPLOAD_EXTENSIONS = [".jpg", ".png", ".jpeg"]
     MAX_CONTENT_LENGTH = 1024 * 1024
     SESSION_COOKIE_SECURE = False
 
