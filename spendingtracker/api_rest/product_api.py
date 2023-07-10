@@ -1,15 +1,12 @@
-import simplejson as simplejson
-from flask import Blueprint, jsonify, request, flash
-from flask_jwt_extended import get_jwt_identity, jwt_required, current_user, get_current_user
-from flask_marshmallow.fields import fields
+from flask import Blueprint, flash, jsonify, request
+from flask_jwt_extended import current_user, jwt_required
 from flask_restful import Api
-from marshmallow import INCLUDE, pre_load, ValidationError
+from marshmallow import INCLUDE, ValidationError
 
-from spendingtracker import ma, db, csrf, jwt
-from spendingtracker.api_rest.category_api import CategorySchema
-from spendingtracker.models import ProductPurchased, Category, User
+from spendingtracker import csrf, db, jwt, ma
+from spendingtracker.models import ProductPurchased, User
 
-productapi = Blueprint('product_api', __name__, url_prefix='/api')
+productapi = Blueprint("product_api", __name__, url_prefix="/api")
 csrf.exempt(productapi)
 api = Api(productapi)
 
@@ -45,27 +42,28 @@ product_schema = ProductSchema()
 products_schema = ProductSchema(many=True)
 
 
-@productapi.route('/products/all', methods=['GET'])
+@productapi.route("/products/all", methods=["GET"])
 def get_products():
     all_products = ProductPurchased.query.all()
     result = products_schema.dump(all_products)
     return jsonify(result)
 
 
-@productapi.route('/products', methods=['GET'])
+@productapi.route("/products", methods=["GET"])
 @jwt_required()
 def get_myproducts():
-    result = ProductSchema(many=True, only=["buy_date", "id", "price", "purchase_cat.name", "user_id"]).dump(
-        current_user.bought_products)
+    result = ProductSchema(
+        many=True, only=["buy_date", "id", "price", "purchase_cat.name", "user_id"]
+    ).dump(current_user.bought_products)
     return jsonify(result)
 
 
-@productapi.route('/products', methods=["POST"])
+@productapi.route("/products", methods=["POST"])
 @jwt_required()
 def add_product():
     data = request.get_json()
     if not data:
-        return jsonify({"message": 'No input Data'})
+        return jsonify({"message": "No input Data"})
     try:
         new_product = ProductSchema().load(data)
     except ValidationError as err:
@@ -78,18 +76,18 @@ def add_product():
     return product_schema.jsonify(new_product)
 
 
-@productapi.route('/products/<int:id>', methods=['DELETE'])
+@productapi.route("/products/<int:id>", methods=["DELETE"])
 def del_prod(id):
     prod_to_del = ProductPurchased.query.get(id)
-    flash(f'Deleted {prod_to_del.purchase_cat.name}')
+    flash(f"Deleted {prod_to_del.purchase_cat.name}")
     db.session.delete(prod_to_del)
     db.session.commit()
-    return f'Deleted Purchase: {prod_to_del.purchase_cat.name}'
+    return f"Deleted Purchase: {prod_to_del.purchase_cat.name}"
 
 
-@productapi.route('/products/<int:id>', methods=['PUT'])
+@productapi.route("/products/<int:id>", methods=["PUT"])
 def update_prod(id):
     prod_to_update = ProductPurchased.query.get(id)
-    prod_to_update.price = request.json['price']
+    prod_to_update.price = request.json["price"]
     db.session.commit()
     return product_schema.jsonify(prod_to_update)
